@@ -1,0 +1,241 @@
+{
+  "users": [
+    {
+      "_id": "884ba266b3cb59e98e14a868",
+      "name": "Alex Rivera",
+      "email": "alex@tasklens.io",
+      "passwordHash": "$2b$10$G4h7VhgS1Xm.FxiMCShC6e44jfJad9vNJ8ERqeoHnru1FHfyPyK5S",
+      "timeZone": "America/Los_Angeles",
+      "locale": "en-US",
+      "notificationPrefs": {
+        "email": true,
+        "push": true,
+        "inApp": true
+      },
+      "deviceTokens": [],
+      "createdAt": "2026-09-11T05:21:31.898Z",
+      "updatedAt": "2026-09-11T05:21:31.898Z"
+    },
+    {
+      "_id": "a093d885a6a82dc7de150771",
+      "name": "Sarah Rivera",
+      "email": "sarah@tasklens.io",
+      "passwordHash": "$2b$10$G4h7VhgS1Xm.FxiMCShC6e44jfJad9vNJ8ERqeoHnru1FHfyPyK5S",
+      "timeZone": "America/Los_Angeles",
+      "locale": "en-US",
+      "notificationPrefs": {
+        "email": true,
+        "push": true,
+        "inApp": true
+      },
+      "deviceTokens": [],
+      "createdAt": "2026-09-11T05:21:31.899Z",
+      "updatedAt": "2026-09-11T05:21:31.899Z"
+    },
+    {
+      "_id": "14df8b1f23f497509073b769",
+      "name": "Jordan Rivera (Kid)",
+      "email": "jordan@tasklens.io",
+      "passwordHash": "$2b$10$G4h7VhgS1Xm.FxiMCShC6e44jfJad9vNJ8ERqeoHnru1FHfyPyK5S",
+      "timeZone": "America/Los_Angeles",
+      "locale": "en-US",
+      "notificationPrefs": {
+        "email": true,
+        "push": true,
+        "inApp": true
+      },
+      "deviceTokens": [],
+      "createdAt": "2026-09-11T05:21:31.899Z",
+      "updatedAt": "2026-09-11T05:21:31.899Z"
+    }
+  ],
+  "groups": [
+    {
+      "_id": "8af85c091f0aea3afc25d52f",
+      "name": "Rivera Family",
+      "description": "Shared household logistics, school forms, doctor appointments, and bills.",
+      "type": "family",
+      "createdBy": "884ba266b3cb59e98e14a868",
+      "members": [
+        {
+          "userId": "884ba266b3cb59e98e14a868",
+          "role": "admin",
+          "joinedAt": "2026-09-11T05:21:31.899Z"
+        },
+        {
+          "userId": "a093d885a6a82dc7de150771",
+          "role": "admin",
+          "joinedAt": "2026-09-11T05:21:31.899Z"
+        },
+        {
+          "userId": "14df8b1f23f497509073b769",
+          "role": "member",
+          "joinedAt": "2026-09-11T05:21:31.899Z"
+        }
+      ],
+      "inviteCode": "RIVERA26",
+      "createdAt": "2026-09-11T05:21:31.899Z",
+      "updatedAt": "2026-09-11T05:21:31.899Z"
+    }
+  ],
+  "tasks": [
+    {
+      "_id": "7a554937d6cea0bd6ed707db",
+      "title": "Submit Jordan School Science Fair Permission Slip",
+      "description": "Signed PDF needs to be returned to Ms. Vance before Friday 3:00 PM.",
+      "status": "pending",
+      "priority": "high",
+      "dueDate": "2026-09-12",
+      "dueTime": "15:00",
+      "timeZone": "America/Los_Angeles",
+      "createdBy": "884ba266b3cb59e98e14a868",
+      "assignedTo": "a093d885a6a82dc7de150771",
+      "groupId": "8af85c091f0aea3afc25d52f",
+      "sourceEvidence": {
+        "excerpt": "Please return the signed permission slip for the Science Fair by Friday 3 PM at the latest.",
+        "confidence": 0.96,
+        "originalExpression": "by Friday 3 PM"
+      },
+      "version": 1,
+      "createdAt": "2026-09-11T05:21:31.899Z",
+      "updatedAt": "2026-09-11T05:21:31.899Z"
+    },
+    {
+      "_id": "8fe69e6499438203e225cc4e",
+      "title": "Pay Municipal Water Bill #98421 ($84.50)",
+      "description": "Avoid late penalty charges before due date next week.",
+      "status": "pending",
+      "priority": "medium",
+      "dueDate": "2026-09-18",
+      "dueTime": "18:00",
+      "timeZone": "America/Los_Angeles",
+      "createdBy": "a093d885a6a82dc7de150771",
+      "assignedTo": "884ba266b3cb59e98e14a868",
+      "groupId": "8af85c091f0aea3afc25d52f",
+      "sourceEvidence": {
+        "excerpt": "Your total balance of $84.50 is due on September 17. Late fee will apply after this date.",
+        "confidence": 0.98,
+        "originalExpression": "due on September 17"
+      },
+      "version": 1,
+      "createdAt": "2026-09-11T05:21:31.899Z",
+      "updatedAt": "2026-09-11T05:21:31.899Z"
+    },
+    {
+      "_id": "4c1bfea7c5f61b73be149d7c",
+      "title": "Dental Checkup for Jordan",
+      "description": "Pediatric Dental Group - Clean and fluoridation check.",
+      "status": "completed",
+      "priority": "low",
+      "dueDate": "2026-09-11",
+      "dueTime": "10:30",
+      "timeZone": "America/Los_Angeles",
+      "createdBy": "884ba266b3cb59e98e14a868",
+      "assignedTo": "884ba266b3cb59e98e14a868",
+      "groupId": "8af85c091f0aea3afc25d52f",
+      "version": 1,
+      "createdAt": "2026-09-11T05:21:31.900Z",
+      "updatedAt": "2026-09-11T05:21:31.900Z"
+    },
+    {
+      "_id": "288c3786b2ed9bfe4c4d2520",
+      "title": "Return signed permission slip for Jordan",
+      "description": "",
+      "status": "pending",
+      "priority": "high",
+      "dueDate": "2026-09-11",
+      "dueTime": "15:00",
+      "timeZone": "America/Los_Angeles",
+      "createdBy": "884ba266b3cb59e98e14a868",
+      "assignedTo": "884ba266b3cb59e98e14a868",
+      "sourceEvidence": {
+        "excerpt": "Please return the signed permission slip by tomorrow 3 PM"
+      },
+      "version": 1,
+      "createdAt": "2026-09-11T05:21:54.077Z",
+      "updatedAt": "2026-09-11T05:21:54.077Z"
+    }
+  ],
+  "reminders": [
+    {
+      "_id": "18c4f8599afb45f89ee53a77",
+      "taskId": "7a554937d6cea0bd6ed707db",
+      "userId": "a093d885a6a82dc7de150771",
+      "triggerTime": "2026-09-12T03:21:31.899Z",
+      "relativeMinutes": 120,
+      "type": "relative",
+      "status": "scheduled",
+      "title": "Reminder: Jordan Science Fair Slip due in 2 hours",
+      "createdAt": "2026-09-11T05:21:31.900Z"
+    },
+    {
+      "_id": "a6c68fccbb596cbb9d76dd06",
+      "taskId": "8fe69e6499438203e225cc4e",
+      "userId": "884ba266b3cb59e98e14a868",
+      "triggerTime": "2026-09-17T05:21:31.899Z",
+      "relativeMinutes": 1440,
+      "type": "relative",
+      "status": "scheduled",
+      "title": "Reminder: Water Bill due tomorrow ($84.50)",
+      "createdAt": "2026-09-11T05:21:31.900Z"
+    },
+    {
+      "_id": "44bb14f2b5c57621a45cc064",
+      "taskId": "288c3786b2ed9bfe4c4d2520",
+      "userId": "884ba266b3cb59e98e14a868",
+      "triggerTime": "2026-09-11T14:00:00.000Z",
+      "relativeMinutes": 60,
+      "type": "relative",
+      "status": "scheduled",
+      "title": "Reminder: \"Return signed permission slip for Jordan\" is due soon",
+      "createdAt": "2026-09-11T05:21:54.077Z"
+    }
+  ],
+  "notifications": [
+    {
+      "_id": "435446935842bb32432a3c6d",
+      "userId": "884ba266b3cb59e98e14a868",
+      "title": "Welcome to TaskLens",
+      "message": "TaskLens backend is active with Node.js and MongoDB data storage.",
+      "type": "system",
+      "read": true,
+      "createdAt": "2026-09-11T05:21:31.901Z"
+    },
+    {
+      "_id": "d4efc7cff712da645b85a861",
+      "userId": "a093d885a6a82dc7de150771",
+      "title": "New Task Assigned",
+      "message": "Alex assigned you: \"Submit Jordan School Science Fair Permission Slip\"",
+      "type": "task_assigned",
+      "refId": "7a554937d6cea0bd6ed707db",
+      "read": false,
+      "createdAt": "2026-09-11T05:21:31.901Z"
+    }
+  ],
+  "ingestions": [
+    {
+      "_id": "ae506fa14922e8cb5def87bd",
+      "userId": "884ba266b3cb59e98e14a868",
+      "rawText": "Please return the signed permission slip for Jordan by tomorrow 3 PM at the latest.",
+      "inputType": "text",
+      "extractedSuggestions": [
+        {
+          "id": "sug_1_1789104110573",
+          "title": "Return signed permission slip for Jordan",
+          "description": "Return the signed permission slip for Jordan by the specified deadline.",
+          "dueDate": "2026-09-11",
+          "dueTime": "15:00",
+          "priority": "medium",
+          "assignedToName": "Jordan Rivera (Kid)",
+          "confidence": 0.95,
+          "sourceExcerpt": "Please return the signed permission slip for Jordan by tomorrow 3 PM at the latest.",
+          "originalExpression": "tomorrow 3 PM at the latest",
+          "warnings": []
+        }
+      ],
+      "status": "analyzed",
+      "confirmedTaskIds": [],
+      "createdAt": "2026-09-11T05:21:50.573Z"
+    }
+  ]
+}
