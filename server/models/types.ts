@@ -24,6 +24,7 @@ export interface IUser {
 
 export interface IGroupMember {
   userId: string;
+  name?: string;
   role: 'admin' | 'member';
   joinedAt: string;
 }

@@ -105,7 +105,6 @@ export const Header: React.FC<HeaderProps> = ({
               />
             </button>
 
-
             {/* Notifications */}
             {user && (
               <button
@@ -304,8 +303,6 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                   <span className="w-2 h-2 rounded-full bg-sky-400" />
                 </button>
-
-
               </div>
             </div>
 

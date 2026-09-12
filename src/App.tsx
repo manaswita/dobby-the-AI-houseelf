@@ -15,6 +15,7 @@ import {
   AlertCircle,
   Mail,
   MessageSquare,
+  BookOpen,
 } from 'lucide-react';
 import { api } from './api';
 import {
@@ -35,6 +36,7 @@ import { NotificationsDrawer } from './components/NotificationsDrawer';
 import { DbStatusModal } from './components/DbStatusModal';
 import { ApiConsole } from './components/ApiConsole';
 import { NotificationChannelsModal } from './components/NotificationChannelsModal';
+import { CapabilitiesGuide } from './components/CapabilitiesGuide';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
@@ -45,7 +47,7 @@ export default function App() {
   const [users, setUsers] = useState<Array<{ _id: string; name: string }>>([]);
   const [health, setHealth] = useState<SystemHealth | null>(null);
 
-  const [activeTab, setActiveTab] = useState<'tasks' | 'reminders' | 'groups' | 'api'>('tasks');
+  const [activeTab, setActiveTab] = useState<'tasks' | 'reminders' | 'groups' | 'capabilities' | 'api'>('tasks');
   const [selectedGroupId, setSelectedGroupId] = useState<string>('');
 
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -291,6 +293,26 @@ export default function App() {
             </button>
 
             <button
+              id="tab-capabilities-btn"
+              onClick={() => setActiveTab('capabilities')}
+              className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl transition-all whitespace-nowrap text-xs sm:text-sm ${
+                activeTab === 'capabilities'
+                  ? 'bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
+                  : 'text-sky-200/70 hover:text-white hover:bg-[#0c182f]'
+              }`}
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>What Dobby Can Do</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold uppercase tracking-wider ${
+                  activeTab === 'capabilities' ? 'bg-slate-950 text-cyan-400' : 'bg-sky-500/20 text-sky-300'
+                }`}
+              >
+                Guide
+              </span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('api')}
               className={`hidden md:flex items-center gap-2 px-3.5 py-2 rounded-xl transition-all whitespace-nowrap text-xs ${
                 activeTab === 'api'
@@ -353,6 +375,16 @@ export default function App() {
           />
         )}
 
+        {activeTab === 'capabilities' && (
+          <CapabilitiesGuide
+            onNavigateTab={(tab) => setActiveTab(tab)}
+            onOpenWhatsAppModal={() => setIsChannelsModalOpen(true)}
+            onScrollToIngest={() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        )}
+
         {activeTab === 'api' && <ApiConsole />}
       </main>
 
@@ -392,6 +424,18 @@ export default function App() {
         >
           <Users className="w-5 h-5" />
           <span className="text-[10px]">Families</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('capabilities')}
+          className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
+            activeTab === 'capabilities'
+              ? 'text-sky-400 font-bold'
+              : 'text-sky-200/60 hover:text-white'
+          }`}
+        >
+          <BookOpen className="w-5 h-5" />
+          <span className="text-[10px]">Guide</span>
         </button>
 
         <button

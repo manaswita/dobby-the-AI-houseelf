@@ -72,7 +72,11 @@ export const GroupManager: React.FC<GroupManagerProps> = ({
   const [loading, setLoading] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  // Fetch available registered users when add member modal opens
+  // Fetch available registered users on mount and when add member modal opens
+  useEffect(() => {
+    loadAvailableUsers();
+  }, []);
+
   useEffect(() => {
     if (targetAddMemberGroup) {
       loadAvailableUsers();
@@ -93,6 +97,20 @@ export const GroupManager: React.FC<GroupManagerProps> = ({
     } finally {
       setLoadingUsers(false);
     }
+  };
+
+  const resolveMemberName = (m: { userId: string; name?: string }) => {
+    if (m.name && m.name !== 'Unknown Member' && m.name !== 'Member') {
+      return m.name;
+    }
+    if (currentUser && String(currentUser._id) === String(m.userId)) {
+      return currentUser.name || 'You';
+    }
+    const matched = availableUsers.find((u) => String(u._id) === String(m.userId));
+    if (matched && matched.name) {
+      return matched.name;
+    }
+    return m.name || 'Member';
   };
 
   const handleCreateGroup = async (e: React.FormEvent) => {
@@ -725,21 +743,22 @@ export const GroupManager: React.FC<GroupManagerProps> = ({
 
                     <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto pr-1">
                       {group.members.map((m) => {
-                        const isMe = m.userId === currentUser?._id;
+                        const isMe = String(m.userId) === String(currentUser?._id);
+                        const memberDisplayName = resolveMemberName(m);
                         return (
                           <div
                             key={m.userId}
                             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-300 group/member"
                           >
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                            <span>{m.name || 'Member'}</span>
+                            <span>{memberDisplayName}</span>
                             {isMe && <span className="text-slate-500 text-[9px]">(You)</span>}
                             {m.role === 'admin' && (
                               <Shield className="w-2.5 h-2.5 text-amber-400" title="Admin" />
                             )}
                             {isCallerAdmin && !isMe && (
                               <button
-                                onClick={() => handleRemoveMember(group._id, m.userId, m.name || 'Member')}
+                                onClick={() => handleRemoveMember(group._id, m.userId, memberDisplayName)}
                                 className="text-slate-500 hover:text-rose-400 p-0.5 rounded transition-colors ml-0.5 opacity-0 group-hover/member:opacity-100"
                                 title="Remove member"
                               >

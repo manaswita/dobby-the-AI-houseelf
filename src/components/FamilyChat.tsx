@@ -14,7 +14,7 @@ import {
   Pencil,
 } from 'lucide-react';
 import { api } from '../api';
-import { Group, ChatMessage, UserProfile } from '../types';
+import { Group, ChatMessage, UserProfile, RegisteredUser } from '../types';
 
 interface FamilyChatProps {
   group: Group;
@@ -41,8 +41,29 @@ export const FamilyChat: React.FC<FamilyChatProps> = ({
   const [sending, setSending] = useState(false);
   const [askElf, setAskElf] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
+  const [availableUsers, setAvailableUsers] = useState<RegisteredUser[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    api.getAvailableUsers()
+      .then((res) => setAvailableUsers(res.users || []))
+      .catch((err) => console.warn('FamilyChat available users fetch error:', err));
+  }, []);
+
+  const resolveMemberName = (m: { userId: string; name?: string }) => {
+    if (m.name && m.name !== 'Unknown Member' && m.name !== 'Member') {
+      return m.name;
+    }
+    if (currentUser && String(currentUser._id) === String(m.userId)) {
+      return currentUser.name || 'You';
+    }
+    const matched = availableUsers.find((u) => String(u._id) === String(m.userId));
+    if (matched && matched.name) {
+      return matched.name;
+    }
+    return m.name || 'Member';
+  };
 
   const fetchMessages = async (isSilent = false) => {
     if (!isSilent) setLoading(true);
@@ -222,21 +243,25 @@ export const FamilyChat: React.FC<FamilyChatProps> = ({
       <div className="px-4 py-2 bg-slate-950/40 border-b border-slate-800/60 flex items-center justify-between text-xs overflow-x-auto gap-2">
         <div className="flex items-center gap-1.5 flex-nowrap">
           <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Members:</span>
-          {group.members.map((m) => (
-            <span
-              key={m.userId}
-              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap border ${
-                m.userId === currentUser?._id
-                  ? 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30'
-                  : 'bg-slate-900 text-slate-300 border-slate-800'
-              }`}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span>{m.name || 'Member'}</span>
-              {m.userId === currentUser?._id && <span className="text-slate-500 text-[9px]">(You)</span>}
-              {m.role === 'admin' && <span className="text-amber-400 text-[9px] font-bold">Admin</span>}
-            </span>
-          ))}
+          {group.members.map((m) => {
+            const isMe = String(m.userId) === String(currentUser?._id);
+            const memberDisplayName = resolveMemberName(m);
+            return (
+              <span
+                key={m.userId}
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap border ${
+                  isMe
+                    ? 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30'
+                    : 'bg-slate-900 text-slate-300 border-slate-800'
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span>{memberDisplayName}</span>
+                {isMe && <span className="text-slate-500 text-[9px]">(You)</span>}
+                {m.role === 'admin' && <span className="text-amber-400 text-[9px] font-bold">Admin</span>}
+              </span>
+            );
+          })}
         </div>
 
         <span className="text-[10px] text-slate-500 whitespace-nowrap hidden md:block">

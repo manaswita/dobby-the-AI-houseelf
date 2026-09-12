@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dobby - System & AI Technical Architecture</title>
+  <style>
+    :root {
+      --bg: #060d19;
+      --card-bg: #0b172a;
+      --card-border: #1e3a5f;
+      --accent-cyan: #38bdf8;
+      --accent-emerald: #34d399;
+      --accent-purple: #a855f7;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --code-bg: #030712;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    header {
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      margin-bottom: 0.75rem;
+    }
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .lead {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+    h2 {
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem;
+      color: var(--accent-cyan);
+      border-left: 4px solid var(--accent-cyan);
+      padding-left: 0.75rem;
+    }
+    h3 {
+      font-size: 1.2rem;
+      margin: 1.25rem 0 0.5rem;
+      color: #e2e8f0;
+    }
+    p { margin-bottom: 1rem; color: #cbd5e1; }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    ul, ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+      color: #cbd5e1;
+    }
+    li { margin-bottom: 0.5rem; }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: var(--code-bg);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.9em;
+      color: var(--accent-cyan);
+      border: 1px solid #1e293b;
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85rem;
+      color: #e2e8f0;
+      margin: 1rem 0;
+      line-height: 1.5;
+    }
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .flow-num {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      color: #030712;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      margin-top: 0.2rem;
+    }
+    .flow-content { flex: 1; }
+    .table-responsive {
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    th, td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    th {
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+    tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--card-border);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="badge">Architecture Specification</span>
+      <h1>🪄 Dobby - The AI Elf Assistant</h1>
+      <p class="lead">Complete High-Level & Low-Level Technical and AI Architecture Reference</p>
+    </header>
+
+    <!-- SECTION 1: HIGH-LEVEL ARCHITECTURE -->
+    <section>
+      <h2>1. High-Level Technical Architecture</h2>
+      <p>
+        Dobby is built as a cloud-native, modern full-stack web application designed for zero-friction household task and schedule automation.
+        It uses a single-container Express + Vite hybrid deployment model running behind Google Cloud Run.
+      </p>
+
+      <div class="card">
+        <h3>Architecture Topology Overview</h3>
+        <pre>
++-----------------------------------------------------------------------------------+
+| CLIENT-SIDE (Browser SPA)                                                         |
+| - React 18 + Vite + Tailwind CSS + Lucide Icons                                   |
+| - Single Page Application with Tab Navigation (Tasks, Reminders, Families, API)  |
+| - Real-time Drag-and-Drop / Clipboard Ingestion UI                                |
++------------------------------------------+----------------------------------------+
+                                           | HTTPS REST API &amp; JSON Web Tokens
+                                           v
++-----------------------------------------------------------------------------------+
+| SERVER-SIDE (Node.js &amp; Express 4.x)                                               |
+| Port 3000 Ingress (Cloud Run Container / Docker)                                  |
+|                                                                                   |
+|  [ API Layer: /api/auth, /api/tasks, /api/reminders, /api/ingest, /api/health ]  |
+|                                     |                                             |
+|  [ Middleware ]: JWT Authentication, Multer In-Memory Storage, Rate Limiting      |
+|                                     |                                             |
+|  +---------------------------+      |      +-----------------------------------+  |
+|  | AI Cognitive Ingestion    |&lt;-----+-----&gt;| Background Reminder Engine       |  |
+|  | - Google GenAI SDK        |             | - 60s Precision Periodic Scanner  |  |
+|  | - Gemini 3.8 / Flash Lite |             | - Status Mutex (Scheduled->Fired) |  |
+|  | - Multimodal (Vision/PDF) |             | - WhatsApp Webhook &amp; Twilio API   |  |
+|  | - Mammoth (Word / .docx)  |             +-----------------------------------+  |
+|  +---------------------------+                                                    |
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | Hybrid Dual-Engine Persistence Abstraction (server/db.ts)                   |  |
+|  | Primary: MongoDB Atlas (Mongoose ODM with Schemas &amp; Indexes)               |  |
+|  | Fallback: Atomic Self-Repairing Local JSON Basin (Zero-Downtime Resilience) |  |
+|  +-----------------------------------------------------------------------------+  |
++-----------------------------------------------------------------------------------+</pre>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Frontend Tech Stack</h3>
+          <ul>
+            <li><strong>Framework:</strong> React 18 (TypeScript)</li>
+            <li><strong>Build Tool:</strong> Vite with Hot Module Replacement &amp; SPA Routing</li>
+            <li><strong>Styling:</strong> Tailwind CSS (Cinzel decorative typography &amp; deep slate blues)</li>
+            <li><strong>Icons:</strong> Lucide React</li>
+            <li><strong>Client API:</strong> Modular Fetch client with Bearer JWT token lifecycle</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Backend Tech Stack</h3>
+          <ul>
+            <li><strong>Runtime:</strong> Node.js with native TypeScript type stripping / esbuild</li>
+            <li><strong>Web Server:</strong> Express 4.x with RESTful endpoints</li>
+            <li><strong>File Handling:</strong> Multer memory storage (up to 20MB per ingestion)</li>
+            <li><strong>Auth:</strong> Bcrypt password hashing &amp; JWT signing</li>
+            <li><strong>Deployment:</strong> Containerized Docker on Google Cloud Run (asia-southeast1)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: HOW THE AI PART WORKS -->
+    <section>
+      <h2>2. How the AI Extraction Engine Works</h2>
+      <p>
+        Dobby does not merely "summarize" text. It acts as an <strong>Unstructured-to-Structured Cognitive Pipeline</strong> that converts messy real-world household data (school permission slips, doctor appointment texts, messy WhatsApp group chats, utility bills) into actionable tasks with absolute dates, times, assignees, and reminders.
+      </p>
+
+      <div class="card">
+        <h3>Step-by-Step AI Execution Lifecycle</h3>
+
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-content">
+            <h4>Multimodal Ingestion &amp; Triage (Client + Server)</h4>
+            <p>
+              Users can submit raw text, paste screenshots via <code>Ctrl+V</code>, or drag and drop up to 10 files simultaneously (PNG, JPEG, PDF, DOCX, TXT, CSV).
+              Multer parses the multipart request into memory buffers without disk latency.
+            </p>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-content">
+            <h4>Document Deconstruction &amp; Text Normalization</h4>
+            <p>
+              The backend inspects MIME types:
+            </p>
+            <ul>
+              <li><strong>DOCX Files:</strong> Parsed server-side using <code>mammoth.js</code> to extract clean raw text hierarchies.</li>
+              <li><strong>Plain Text / CSV:</strong> Decoded directly from binary buffers.</li>
+              <li><strong>Images &amp; PDFs:</strong> Encoded into Base64 <code>inlineData</code> payloads for direct visual parsing by Gemini.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div class="flow-content">
+            <h4>Temporal &amp; Contextual Grounding Prompt Construction</h4>
+            <p>
+              Before dispatching to Gemini, the system injects critical runtime ground truth into the system prompt:
+            </p>
+            <ul>
+              <li><code>currentNow</code>: ISO timestamp representing the user's exact current moment (e.g. <code>2026-09-12T07:43:00Z</code>).</li>
+              <li><code>userTimeZone</code>: Resolves "tomorrow at 3 PM" to the user's actual timezone (e.g., <code>Asia/Kolkata</code>, <code>America/New_York</code>).</li>
+              <li><code>knownMembers</code>: Known family member names and UUIDs so Gemini can accurately assign the task to "Mom", "Sarah", or "Alex".</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div class="flow-content">
+            <h4>Gemini Model Invocation with Structured JSON Mode</h4>
+            <p>
+              The engine calls the Google GenAI SDK (<code>@google/genai</code>) using strict JSON output mode (<code>responseMimeType: 'application/json'</code>).
+            </p>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-num">5</div>
+          <div class="flow-content">
+            <h4>Transient Resilience &amp; Cascading Fallback</h4>
+            <p>
+              If the primary model experiences high load (HTTP 503, 429), Dobby automatically retries and cascades through alternative models:
+            </p>
+            <code>gemini-3.8-flash</code> &rarr; <code>gemini-flash-latest</code> &rarr; <code>gemini-3.1-flash-lite</code> &rarr; <code>Deterministic Regex Parser</code>.
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-num">6</div>
+          <div class="flow-content">
+            <h4>Interactive Review &amp; Human-in-the-Loop Confirmation</h4>
+            <p>
+              Extracted suggestions are returned with a confidence score (0.0 - 1.0), source excerpt quote, and original relative time expression.
+              The user can adjust title, date, priority, or assigned member before 1-click committing to the database.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>AI Prompt Contract (Low-Level Schema)</h3>
+        <p>The prompt forces the Gemini model to respond exclusively in this typed JSON structure:</p>
+        <pre>
+[
+  {
+    "title": "Pay Electricity Bill",
+    "description": "Account #90218, total $142.50 due before cutoff",
+    "dueDate": "2026-09-18",
+    "dueTime": "17:00",
+    "priority": "high",
+    "assignedToName": "Sarah",
+    "confidence": 0.98,
+    "sourceExcerpt": "[invoice.pdf] Total due: $142.50 by Friday 5:00 PM",
+    "originalExpression": "by Friday 5:00 PM",
+    "warnings": []
+  }
+]</pre>
+      </div>
+    </section>
+
+    <!-- SECTION 3: LOW-LEVEL SUBSYSTEMS -->
+    <section>
+      <h2>3. Low-Level Subsystem Architecture</h2>
+
+      <div class="table-responsive card">
+        <h3>Core Backend Components &amp; Responsibilities</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Subsystem</th>
+              <th>Source File</th>
+              <th>Technical Responsibilities</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Server Entry &amp; Ingress</strong></td>
+              <td><code>server.ts</code></td>
+              <td>Boots Express on port 3000, mounts Vite dev middleware in dev, serves production assets from <code>/dist</code>, initializes background reminder interval.</td>
+            </tr>
+            <tr>
+              <td><strong>Cognitive AI Service</strong></td>
+              <td><code>server/services/gemini.ts</code></td>
+              <td>Handles GoogleGenAI client singleton, multi-file buffering, mammoth docx conversion, fallback regex extraction, and candidate model cascade.</td>
+            </tr>
+            <tr>
+              <td><strong>Database Layer</strong></td>
+              <td><code>server/db.ts</code></td>
+              <td>Dual storage pattern. Manages Mongoose ODM connections to MongoDB Atlas with auto-reconnect, and maintains a local JSON fallback in <code>/data/*.json</code>.</td>
+            </tr>
+            <tr>
+              <td><strong>Reminder Daemon</strong></td>
+              <td><code>server/services/reminderScheduler.ts</code></td>
+              <td>Runs every 60 seconds. Queries <code>findDueReminders(nowIso)</code>, atomically transitions status to <code>fired</code>, writes in-app alerts, and triggers webhook dispatch.</td>
+            </tr>
+            <tr>
+              <td><strong>WhatsApp &amp; Alert Dispatcher</strong></td>
+              <td><code>server/services/notifier.ts</code></td>
+              <td>Dispatches alerts across WhatsApp (Twilio / Custom Webhook), Push, and In-App delivery channels. Logs delivery status in audit collections.</td>
+            </tr>
+            <tr>
+              <td><strong>REST Routing Layer</strong></td>
+              <td><code>server/routes/*.ts</code></td>
+              <td>Modular Express routers: <code>auth.ts</code> (JWT), <code>tasks.ts</code> (CRUD &amp; filters), <code>reminders.ts</code> (schedule &amp; snooze), <code>ingest.ts</code> (AI endpoints).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Database &amp; Data Models</h3>
+        <p>Entities are modeled with Mongoose schemas and duplicated in TypeScript interfaces:</p>
+        <ul>
+          <li><strong>Users:</strong> Name, Email, PasswordHash, WhatsApp Phone, Timezone, Notification Preferences.</li>
+          <li><strong>Groups:</strong> Name, Type (Family, Project), Members with Role (Admin/Member), Invite Codes.</li>
+          <li><strong>Tasks:</strong> Title, Description, DueDate, DueTime, Priority, Status (pending, completed, dismissed), AssignedTo, AI Metadata (sourceExcerpt, confidence).</li>
+          <li><strong>Reminders:</strong> TaskId, DueDateTime (ISO), NotificationChannel (WhatsApp, in-app), Status (scheduled, fired, dismissed).</li>
+          <li><strong>DeliveryLogs:</strong> Timestamp, Recipient, Channel, Payload, Status (sent, failed).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SECTION 4: SECURITY & CLOUD RUN DEPLOYMENT -->
+    <section>
+      <h2>4. Security &amp; Deployment Specification</h2>
+      <div class="card">
+        <ul>
+          <li><strong>Zero Secret Exposure:</strong> All Gemini API keys, MongoDB credentials, and JWT secrets remain strictly in backend environment variables (<code>process.env</code>) and are never exposed to the client bundle.</li>
+          <li><strong>Container Ingress:</strong> The container runs on Linux with <code>0.0.0.0:3000</code> binding, fronted by Google Cloud Run with autoscaling (0 to N instances) and Google-managed TLS certificates.</li>
+          <li><strong>Resilient Offline/Cold Start:</strong> If MongoDB Atlas network access is blocked or unconfigured, the app falls back seamlessly to the local basin, allowing users to test without server crashes.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer>
+      <p>Generated by Dobby Engineering • Exported for local inspection &amp; architectural auditing.</p>
+    </footer>
+  </div>
+</body>
+</html>

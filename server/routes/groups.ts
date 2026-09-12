@@ -7,6 +7,31 @@ import { IGroup } from '../models/types';
 
 const router = Router();
 
+// Helper to hydrate group members with real user names
+async function hydrateGroupMembers<T extends IGroup>(group: T): Promise<T> {
+  const allUsers = await db.users.listAll();
+  const userMap = new Map(allUsers.map((u) => [String(u._id), u.name]));
+  return {
+    ...group,
+    members: (group.members || []).map((m) => ({
+      ...m,
+      name: (m.userId ? userMap.get(String(m.userId)) : undefined) || m.name || 'Member',
+    })),
+  };
+}
+
+async function hydrateMultipleGroups(groups: IGroup[]): Promise<IGroup[]> {
+  const allUsers = await db.users.listAll();
+  const userMap = new Map(allUsers.map((u) => [String(u._id), u.name]));
+  return groups.map((g) => ({
+    ...g,
+    members: (g.members || []).map((m) => ({
+      ...m,
+      name: (m.userId ? userMap.get(String(m.userId)) : undefined) || m.name || 'Member',
+    })),
+  }));
+}
+
 // GET /api/groups/available-users - list existing users to add as members
 router.get('/available-users', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -39,18 +64,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Prom
     }
 
     const groups = await db.groups.findForUser(req.user._id);
-
-    // Hydrate members with user names
-    const allUsers = await db.users.listAll();
-    const userMap = new Map(allUsers.map((u) => [u._id, u.name]));
-
-    const enriched = groups.map((g) => ({
-      ...g,
-      members: g.members.map((m) => ({
-        ...m,
-        name: userMap.get(m.userId) || 'Unknown Member',
-      })),
-    }));
+    const enriched = await hydrateMultipleGroups(groups);
 
     res.json({ groups: enriched });
   } catch (err: any) {
@@ -81,7 +95,9 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response): Pro
       inviteCode: crypto.randomBytes(3).toString('hex').toUpperCase(),
     });
 
-    res.status(201).json({ group });
+    const enriched = await hydrateGroupMembers(group);
+
+    res.status(201).json({ group: enriched });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -107,7 +123,7 @@ router.post('/join', authenticateToken, async (req: AuthRequest, res: Response):
       return;
     }
 
-    const isMember = group.members.some((m) => m.userId === req.user!._id);
+    const isMember = group.members.some((m) => String(m.userId) === String(req.user!._id));
     if (isMember) {
       res.status(400).json({ error: 'You are already a member of this group' });
       return;
@@ -133,7 +149,9 @@ router.post('/join', authenticateToken, async (req: AuthRequest, res: Response):
       refId: group._id,
     });
 
-    res.json({ message: 'Successfully joined group', group: updated });
+    const enriched = await hydrateGroupMembers(updated!);
+
+    res.json({ message: 'Successfully joined group', group: enriched });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -153,22 +171,13 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response): P
       return;
     }
 
-    const isMember = group.members.some((m) => m.userId === req.user!._id);
+    const isMember = group.members.some((m) => String(m.userId) === String(req.user!._id));
     if (!isMember) {
       res.status(403).json({ error: 'Access denied. You are not a member of this group.' });
       return;
     }
 
-    const allUsers = await db.users.listAll();
-    const userMap = new Map(allUsers.map((u) => [u._id, u.name]));
-
-    const enriched = {
-      ...group,
-      members: group.members.map((m) => ({
-        ...m,
-        name: userMap.get(m.userId) || 'Unknown Member',
-      })),
-    };
+    const enriched = await hydrateGroupMembers(group);
 
     res.json({ group: enriched });
   } catch (err: any) {
@@ -197,7 +206,7 @@ router.patch('/:id', authenticateToken, async (req: AuthRequest, res: Response):
     }
 
     // Check if requester is a member of this family
-    const isMember = group.members.some((m) => m.userId === req.user!._id) || group.createdBy === req.user._id;
+    const isMember = group.members.some((m) => String(m.userId) === String(req.user!._id)) || String(group.createdBy) === String(req.user._id);
     if (!isMember) {
       res.status(403).json({ error: 'Only family members can update family details.' });
       return;
@@ -213,17 +222,7 @@ router.patch('/:id', authenticateToken, async (req: AuthRequest, res: Response):
     }
 
     const updated = await db.groups.update(group._id, updates);
-
-    // Hydrate members
-    const allUsers = await db.users.listAll();
-    const userMap = new Map(allUsers.map((u) => [u._id, u.name]));
-    const enriched = {
-      ...updated!,
-      members: updated!.members.map((m) => ({
-        ...m,
-        name: userMap.get(m.userId) || 'Unknown Member',
-      })),
-    };
+    const enriched = await hydrateGroupMembers(updated!);
 
     res.json({
       message: 'Family updated successfully',
@@ -254,7 +253,7 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response): P
       return;
     }
 
-    const isMember = group.members.some((m) => m.userId === req.user!._id) || group.createdBy === req.user._id;
+    const isMember = group.members.some((m) => String(m.userId) === String(req.user!._id)) || String(group.createdBy) === String(req.user._id);
     if (!isMember) {
       res.status(403).json({ error: 'Only family members can update family details.' });
       return;
@@ -270,15 +269,7 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response): P
       type: resolvedType,
     });
 
-    const allUsers = await db.users.listAll();
-    const userMap = new Map(allUsers.map((u) => [u._id, u.name]));
-    const enriched = {
-      ...updated!,
-      members: updated!.members.map((m) => ({
-        ...m,
-        name: userMap.get(m.userId) || 'Unknown Member',
-      })),
-    };
+    const enriched = await hydrateGroupMembers(updated!);
 
     res.json({
       message: 'Family updated successfully',
@@ -310,7 +301,7 @@ router.post('/:id/members', authenticateToken, async (req: AuthRequest, res: Res
     }
 
     // Check if requester is a member of this family
-    const isMember = group.members.some((m) => m.userId === req.user!._id) || group.createdBy === req.user._id;
+    const isMember = group.members.some((m) => String(m.userId) === String(req.user!._id)) || String(group.createdBy) === String(req.user._id);
     if (!isMember) {
       res.status(403).json({ error: 'Only members of this family can add other members.' });
       return;
@@ -331,7 +322,7 @@ router.post('/:id/members', authenticateToken, async (req: AuthRequest, res: Res
     }
 
     // Check if the user is already a member of this specific family
-    const alreadyMember = group.members.some((m) => m.userId === targetUser!._id);
+    const alreadyMember = group.members.some((m) => String(m.userId) === String(targetUser!._id));
     if (alreadyMember) {
       res.status(400).json({ error: `${targetUser.name} is already a member of ${group.name}.` });
       return;
@@ -358,16 +349,7 @@ router.post('/:id/members', authenticateToken, async (req: AuthRequest, res: Res
       refId: group._id,
     });
 
-    // Hydrate members
-    const allUsers = await db.users.listAll();
-    const userMap = new Map(allUsers.map((u) => [u._id, u.name]));
-    const enriched = {
-      ...updated!,
-      members: updated!.members.map((m) => ({
-        ...m,
-        name: userMap.get(m.userId) || 'Unknown Member',
-      })),
-    };
+    const enriched = await hydrateGroupMembers(updated!);
 
     res.status(201).json({
       message: `Successfully added ${targetUser.name} to ${group.name}!`,
@@ -392,16 +374,17 @@ router.delete('/:id/members/:memberId', authenticateToken, async (req: AuthReque
       return;
     }
 
-    const callerMembership = group.members.find((m) => m.userId === req.user!._id);
+    const callerMembership = group.members.find((m) => String(m.userId) === String(req.user!._id));
     if (!callerMembership || callerMembership.role !== 'admin') {
       res.status(403).json({ error: 'Only group admins can remove members.' });
       return;
     }
 
-    const updatedMembers = group.members.filter((m) => m.userId !== req.params.memberId);
+    const updatedMembers = group.members.filter((m) => String(m.userId) !== String(req.params.memberId));
     const updated = await db.groups.update(group._id, { members: updatedMembers });
+    const enriched = updated ? await hydrateGroupMembers(updated) : null;
 
-    res.json({ message: 'Member removed', group: updated });
+    res.json({ message: 'Member removed', group: enriched });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
