@@ -77,7 +77,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
             {isRegister ? 'Register with Dobby' : 'Sign in to Dobby'}
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Dobby - The House Help • Household Management with Node.js &amp; MongoDB
+            Dobby - The AI Elf Assistant • Task &amp; Reminder Management with Node.js &amp; MongoDB
           </p>
         </div>
 

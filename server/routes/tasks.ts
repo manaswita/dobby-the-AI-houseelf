@@ -281,4 +281,88 @@ router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response)
   }
 });
 
+// POST /api/tasks/:id/reminders (Schedule a reminder in hours or days before)
+router.post('/:id/reminders', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const task = await db.tasks.findById(req.params.id);
+    if (!task) {
+      res.status(404).json({ error: 'Task not found' });
+      return;
+    }
+
+    const { amount, unit, triggerTime, title, targetDueDate, targetDueTime } = req.body;
+
+    // Optionally update task due date/time if provided
+    if (targetDueDate && targetDueDate !== task.dueDate) {
+      await db.tasks.update(task._id, {
+        dueDate: targetDueDate,
+        dueTime: targetDueTime || task.dueTime,
+      });
+      task.dueDate = targetDueDate;
+      if (targetDueTime) task.dueTime = targetDueTime;
+    }
+
+    let finalTriggerTime = triggerTime;
+    let relativeMinutes: number | undefined;
+
+    if (amount !== undefined && unit) {
+      const num = Math.max(0.1, Number(amount));
+      if (unit === 'hours') {
+        relativeMinutes = Math.round(num * 60);
+      } else if (unit === 'days') {
+        relativeMinutes = Math.round(num * 1440);
+      } else if (unit === 'minutes') {
+        relativeMinutes = Math.round(num);
+      }
+
+      if (task.dueDate && relativeMinutes !== undefined) {
+        const dueDateTimeStr = task.dueTime ? `${task.dueDate}T${task.dueTime}:00` : `${task.dueDate}T09:00:00`;
+        const dueMs = new Date(dueDateTimeStr).getTime();
+        if (!isNaN(dueMs)) {
+          const calculatedMs = dueMs - relativeMinutes * 60 * 1000;
+          finalTriggerTime = new Date(calculatedMs).toISOString();
+        }
+      }
+
+      // If no due date or if the calculated time is already in the past, calculate from current time
+      if (!finalTriggerTime || new Date(finalTriggerTime).getTime() <= Date.now()) {
+        if (relativeMinutes !== undefined) {
+          finalTriggerTime = new Date(Date.now() + relativeMinutes * 60 * 1000).toISOString();
+        }
+      }
+    }
+
+    if (!finalTriggerTime) {
+      res.status(400).json({ error: 'Invalid reminder parameters. Please provide valid hours/days or trigger time.' });
+      return;
+    }
+
+    const unitLabel = unit === 'days' ? (amount === 1 ? 'day' : 'days') : (amount === 1 ? 'hour' : 'hours');
+    const reminderTitle =
+      title ||
+      (amount && unit
+        ? `Reminder: "${task.title}" (${amount} ${unitLabel} before)`
+        : `Reminder: "${task.title}"`);
+
+    const reminder = await db.reminders.create({
+      taskId: task._id,
+      userId: task.assignedTo || req.user._id,
+      triggerTime: finalTriggerTime,
+      relativeMinutes,
+      type: 'relative',
+      status: 'scheduled',
+      title: reminderTitle,
+    });
+
+    res.status(201).json({ reminder, task });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

@@ -1,6 +1,6 @@
 {
-  "name": "Dobby - The House Help",
-  "description": "Your loyal and devoted household assistant for organizing family tasks, schedules, documents, and reminders with AI.",
+  "name": "Dobby - The AI Elf Assistant",
+  "description": "Your loyal and intelligent AI Elf Assistant for organizing tasks, schedules, documents, and reminders with AI.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

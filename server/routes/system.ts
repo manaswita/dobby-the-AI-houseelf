@@ -11,7 +11,7 @@ router.get('/health', async (_req: Request, res: Response): Promise<void> => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    service: 'Dobby - The House Help Backend API',
+    service: 'Dobby - The AI Elf Assistant Backend API',
     database: dbStatus,
     ai: {
       provider: 'Google Gemini AI',

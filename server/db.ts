@@ -7,6 +7,7 @@ import { config } from './config';
 import {
   IUser,
   IGroup,
+  IChatMessage,
   ITask,
   IReminder,
   INotification,
@@ -158,9 +159,22 @@ const DeliveryLogMongooseSchema = new Schema<INotificationDeliveryLog>(
   { timestamps: true }
 );
 
+const ChatMessageMongooseSchema = new Schema<IChatMessage>(
+  {
+    groupId: { type: String, required: true, index: true },
+    senderId: { type: String, required: true },
+    senderName: { type: String, required: true },
+    content: { type: String, required: true },
+    isAiElf: { type: Boolean, default: false },
+    createdAt: { type: String, default: () => new Date().toISOString() },
+  },
+  { timestamps: true }
+);
+
 // Mongoose Models
 export const MongoUserModel: any = mongoose.models.User || mongoose.model('User', UserMongooseSchema);
 export const MongoGroupModel: any = mongoose.models.Group || mongoose.model('Group', GroupMongooseSchema);
+export const MongoChatMessageModel: any = mongoose.models.ChatMessage || mongoose.model('ChatMessage', ChatMessageMongooseSchema);
 export const MongoTaskModel: any = mongoose.models.Task || mongoose.model('Task', TaskMongooseSchema);
 export const MongoReminderModel: any = mongoose.models.Reminder || mongoose.model('Reminder', ReminderMongooseSchema);
 export const MongoNotificationModel: any = mongoose.models.Notification || mongoose.model('Notification', NotificationMongooseSchema);
@@ -178,6 +192,7 @@ const STORE_PATH = path.join(DATA_DIR, 'tasklens_store.json');
 interface IDataStore {
   users: IUser[];
   groups: IGroup[];
+  messages: IChatMessage[];
   tasks: ITask[];
   reminders: IReminder[];
   notifications: INotification[];
@@ -188,6 +203,7 @@ interface IDataStore {
 let memoryStore: IDataStore = {
   users: [],
   groups: [],
+  messages: [],
   tasks: [],
   reminders: [],
   notifications: [],
@@ -213,7 +229,17 @@ function loadLocalStore() {
     ensureDataDir();
     if (fs.existsSync(STORE_PATH)) {
       const content = fs.readFileSync(STORE_PATH, 'utf-8');
-      memoryStore = JSON.parse(content);
+      const loaded = JSON.parse(content);
+      memoryStore = {
+        users: loaded.users || [],
+        groups: loaded.groups || [],
+        messages: loaded.messages || [],
+        tasks: loaded.tasks || [],
+        reminders: loaded.reminders || [],
+        notifications: loaded.notifications || [],
+        ingestions: loaded.ingestions || [],
+        deliveryLogs: loaded.deliveryLogs || [],
+      };
     }
   } catch (err) {
     console.warn('Could not load local data store, starting fresh:', err);
@@ -250,6 +276,7 @@ export const db = {
       counts: {
         users: memoryStore.users.length,
         groups: memoryStore.groups.length,
+        messages: (memoryStore.messages || []).length,
         tasks: memoryStore.tasks.length,
         reminders: memoryStore.reminders.length,
         notifications: memoryStore.notifications.length,
@@ -262,6 +289,7 @@ export const db = {
     let counts = {
       users: memoryStore.users.length,
       groups: memoryStore.groups.length,
+      messages: (memoryStore.messages || []).length,
       tasks: memoryStore.tasks.length,
       reminders: memoryStore.reminders.length,
       notifications: memoryStore.notifications.length,
@@ -270,15 +298,16 @@ export const db = {
 
     if (isConnectedToMongoDB) {
       try {
-        const [users, groups, tasks, reminders, notifications, ingestions] = await Promise.all([
+        const [users, groups, messages, tasks, reminders, notifications, ingestions] = await Promise.all([
           MongoUserModel.countDocuments(),
           MongoGroupModel.countDocuments(),
+          MongoChatMessageModel.countDocuments(),
           MongoTaskModel.countDocuments(),
           MongoReminderModel.countDocuments(),
           MongoNotificationModel.countDocuments(),
           MongoIngestionModel.countDocuments(),
         ]);
-        counts = { users, groups, tasks, reminders, notifications, ingestions };
+        counts = { users, groups, messages, tasks, reminders, notifications, ingestions };
       } catch (err) {
         // Fall back to memory counts if Mongoose query fails
       }
@@ -433,18 +462,43 @@ export const db = {
     },
 
     async findForUser(userId: string): Promise<IGroup[]> {
+      const normalizedId = String(userId);
       if (isConnectedToMongoDB) {
         try {
           const docs = await MongoGroupModel.find({
-            $or: [{ 'members.userId': userId }, { 'members.userId': String(userId) }, { createdBy: userId }],
+            $or: [
+              { 'members.userId': normalizedId },
+              { createdBy: normalizedId },
+            ],
           }).lean();
-          if (docs && docs.length > 0) {
-            return docs.map((d: any) => ({ ...d, _id: String(d._id) })) as unknown as IGroup[];
+          if (docs) {
+            const seen = new Set<string>();
+            const result: IGroup[] = [];
+            for (const d of docs) {
+              const sid = String(d._id);
+              if (!seen.has(sid)) {
+                seen.add(sid);
+                result.push({ ...d, _id: sid } as unknown as IGroup);
+              }
+            }
+            return result;
           }
         } catch {}
       }
+      const seen = new Set<string>();
       return memoryStore.groups
-        .filter((g) => g.members.some((m) => String(m.userId) === String(userId)) || String(g.createdBy) === String(userId))
+        .filter((g) => {
+          const sid = String(g._id);
+          if (seen.has(sid)) return false;
+          const match =
+            String(g.createdBy) === normalizedId ||
+            g.members.some((m) => String(m.userId) === normalizedId);
+          if (match) {
+            seen.add(sid);
+            return true;
+          }
+          return false;
+        })
         .map((g) => ({ ...g, _id: String(g._id) }));
     },
 
@@ -502,6 +556,68 @@ export const db = {
       memoryStore.groups = memoryStore.groups.filter((g) => g._id !== id);
       saveLocalStore();
       return memoryStore.groups.length < initialLen;
+    },
+  },
+
+  // CHAT MESSAGES (Family & Group Messaging)
+  messages: {
+    async findForGroup(groupId: string, limit = 100): Promise<IChatMessage[]> {
+      if (!groupId) return [];
+      if (isConnectedToMongoDB) {
+        try {
+          const docs = await MongoChatMessageModel.find({ groupId })
+            .sort({ createdAt: 1 })
+            .limit(limit)
+            .lean();
+          if (docs && docs.length > 0) {
+            return docs.map((d: any) => ({ ...d, _id: String(d._id) })) as unknown as IChatMessage[];
+          }
+        } catch {}
+      }
+      const list = (memoryStore.messages || []).filter((m) => m.groupId === groupId);
+      list.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+      return list.slice(-limit).map((m) => ({ ...m, _id: String(m._id) }));
+    },
+
+    async create(msgData: Partial<IChatMessage>): Promise<IChatMessage> {
+      const now = new Date().toISOString();
+      const msg: IChatMessage = {
+        _id: generateId(),
+        groupId: msgData.groupId || '',
+        senderId: msgData.senderId || '',
+        senderName: msgData.senderName || 'Family Member',
+        content: msgData.content || '',
+        isAiElf: Boolean(msgData.isAiElf),
+        createdAt: msgData.createdAt || now,
+      };
+
+      if (isConnectedToMongoDB) {
+        try {
+          const created = await MongoChatMessageModel.create(msg);
+          return created.toObject() as unknown as IChatMessage;
+        } catch {}
+      }
+
+      if (!memoryStore.messages) {
+        memoryStore.messages = [];
+      }
+      memoryStore.messages.push(msg);
+      saveLocalStore();
+      return msg;
+    },
+
+    async delete(id: string): Promise<boolean> {
+      if (isConnectedToMongoDB) {
+        try {
+          const res = await MongoChatMessageModel.findByIdAndDelete(id);
+          return Boolean(res);
+        } catch {}
+      }
+      if (!memoryStore.messages) return false;
+      const prev = memoryStore.messages.length;
+      memoryStore.messages = memoryStore.messages.filter((m) => m._id !== id);
+      saveLocalStore();
+      return memoryStore.messages.length < prev;
     },
   },
 

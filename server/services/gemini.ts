@@ -170,7 +170,8 @@ export async function extractTasksFromContent(
       allFiles.map((f, i) => `  ${i + 1}. "${f.fileName}" (Type: ${f.mimeType})`).join('\n')
     : '';
 
-  const promptText = `You are Dobby - The House Help, an intelligent and devoted AI task and household reminder assistant.
+  const promptText = `You are Dobby - The AI Elf Assistant, an intelligent, resourceful, and devoted task and reminder assistant.
+Important Rule: Never use "Master" or subservient master/servant salutations anywhere. Address users respectfully by their given name, or speak directly and clearly as their loyal digital assistant.
 Analyze the following unstructured input and all attached files—which may include multiple documents (Word docs, PDFs), receipts, bills/invoices, permission slips, school forms, SMS/WhatsApp threads, or uploaded images/screenshots.
 Identify ALL actionable tasks, obligations, appointments, deadlines, and reminders across all provided materials.
 
@@ -468,4 +469,43 @@ function fallbackExtraction(
   }
 
   return suggestions;
+}
+
+export async function generateFamilyChatReply(params: {
+  familyName: string;
+  senderName: string;
+  userMessage: string;
+  recentMessages?: Array<{ senderName: string; content: string; isAiElf?: boolean }>;
+}): Promise<string> {
+  const client = getAiClient();
+  if (!client) {
+    return `Hello ${params.senderName}! Dobby - The AI Elf Assistant is happy to help the ${params.familyName} family. Let me know if you need tasks organized or reminders coordinated!`;
+  }
+
+  const historyLines = (params.recentMessages || [])
+    .slice(-6)
+    .map((m) => `${m.isAiElf ? 'Dobby' : m.senderName}: ${m.content}`)
+    .join('\n');
+
+  const promptText = `You are Dobby - The AI Elf Assistant, participating in a family group chat for "${params.familyName}".
+Important Rule: NEVER use "Master", "sir", "mistress", or subservient language anywhere. Address users warmly by their given name, and speak in a cheerful, energetic, and helpful tone as the family's devoted digital elf assistant.
+Recent chat history:
+${historyLines ? historyLines + '\n' : ''}${params.senderName}: ${params.userMessage}
+
+Provide a helpful, friendly, and concise reply (1 to 3 short sentences). You can help coordinate family schedules, chores, reminders, dinner, or answer questions.`;
+
+  for (const model of CANDIDATE_MODELS) {
+    try {
+      const response = await client.models.generateContent({
+        model,
+        contents: promptText,
+      });
+      const text = response.text?.trim();
+      if (text) return text;
+    } catch (err: any) {
+      console.warn(`Gemini chat reply attempt on model ${model} failed:`, err?.message || err);
+    }
+  }
+
+  return `Hello ${params.senderName}! Dobby is right here. Let me know what you need scheduled or reminded for ${params.familyName}!`;
 }

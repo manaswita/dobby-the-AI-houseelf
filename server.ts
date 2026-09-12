@@ -45,7 +45,7 @@ async function startServer() {
   // Direct project ZIP download route for instant migration between accounts
   app.get('/api/download-project-zip', (req, res) => {
     const zipPath = path.join(process.cwd(), 'public', 'dobby-project.zip');
-    res.download(zipPath, 'dobby-house-help.zip', (err) => {
+    res.download(zipPath, 'dobby-ai-elf-assistant.zip', (err) => {
       if (err && !res.headersSent) {
         res.status(500).json({ error: 'Failed to download zip' });
       }

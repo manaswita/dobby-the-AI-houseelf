@@ -219,7 +219,7 @@ export const NotificationChannelsModal: React.FC<NotificationChannelsModalProps>
           {activeTab === 'settings' && (
             <form onSubmit={handleSaveSettings} className="space-y-5">
               {/* WhatsApp Service Status Banner */}
-              <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2">
+              <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <MessageSquare className="w-4 h-4 text-emerald-400" />
@@ -232,14 +232,38 @@ export const NotificationChannelsModal: React.FC<NotificationChannelsModalProps>
                         : 'bg-cyan-500/20 text-cyan-300'
                     }`}
                   >
-                    {isTwilioConfigured ? 'Twilio API Connected' : 'Direct Link Mode Enabled'}
+                    {isTwilioConfigured ? 'Twilio Sandbox Connected' : 'Direct Link Mode Enabled'}
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-400 leading-relaxed">
                   {isTwilioConfigured
-                    ? `Automated background dispatch is active using sender ${channelsStatus?.channels?.whatsapp?.from}.`
-                    : `Direct wa.me link generation is active! You can test sending directly to WhatsApp with 1-click. For automated background delivery, add your Twilio Account SID & Auth Token in the Secrets/Environment panel.`}
+                    ? `Automated background dispatch is active using Twilio WhatsApp Sandbox (${channelsStatus?.channels?.whatsapp?.from || '+14155238886'}).`
+                    : `Direct wa.me link generation is active! You can test sending directly to WhatsApp with 1-click.`}
                 </p>
+
+                {/* Sandbox 24h Opt-in Notice & Quick Re-join */}
+                {isTwilioConfigured && (
+                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-2">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <div className="font-bold text-amber-300 flex items-center gap-1.5">
+                        <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                        <span>Twilio Sandbox 24-Hour Window</span>
+                      </div>
+                      <a
+                        href="https://wa.me/14155238886?text=join%20plate-tea"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-lg font-bold text-[11px] inline-flex items-center gap-1 shadow-sm"
+                      >
+                        <span>Send "join plate-tea" to +1 415 523 8886</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                      WhatsApp rules require an inbound message to the Twilio Sandbox every 24 hours to keep the session active. If you didn't receive a notification, your 24-hour session expired. Click the button above to send <strong className="text-emerald-300">join plate-tea</strong> from your phone to re-open the delivery window!
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* WhatsApp Config Card */}
@@ -405,19 +429,39 @@ export const NotificationChannelsModal: React.FC<NotificationChannelsModalProps>
                     </div>
                   )}
 
-                  <div className="text-[11px] text-slate-400 bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                  <div className="text-[11px] text-slate-400 bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-1">
                     <div className="font-mono text-slate-300">
                       Recipient: {whatsappTestResult.result?.recipient}
                     </div>
                     <div className="font-mono text-slate-300">
-                      Status: {whatsappTestResult.result?.status}
+                      Twilio Status: {whatsappTestResult.result?.status}
                     </div>
                     {whatsappTestResult.result?.messageSid && (
                       <div className="font-mono text-slate-300">
-                        Twilio Message SID: {whatsappTestResult.result.messageSid}
+                        Message SID: {whatsappTestResult.result.messageSid}
                       </div>
                     )}
                   </div>
+
+                  {isTwilioConfigured && (
+                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-2">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <span className="font-bold text-amber-300">Didn't receive this on your phone?</span>
+                        <a
+                          href="https://wa.me/14155238886?text=join%20plate-tea"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-lg font-bold text-[11px] inline-flex items-center gap-1 shadow-sm"
+                        >
+                          <span>Re-activate Sandbox (join plate-tea)</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                      <p className="text-[11px] text-slate-300">
+                        Twilio WhatsApp Sandbox requires a message from your phone every 24 hours. If your 24-hour window closed, tap the button above to send <strong>join plate-tea</strong> from WhatsApp.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 

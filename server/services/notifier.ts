@@ -189,7 +189,7 @@ export const notifier = {
 
     if (shouldWhatsApp && phoneTo) {
       const waMessage =
-        `🧹 *Dobby House Help — Reminder*\n\n` +
+        `✨ *Dobby — The AI Elf Assistant — Reminder*\n\n` +
         `📌 *Task:* ${taskTitle}\n` +
         `⏰ *Due:* ${dueDateStr}\n` +
         `⚡ *Priority:* ${priority}\n` +
@@ -217,7 +217,7 @@ export const notifier = {
     assigner?: IUser | null;
   }): Promise<{ whatsapp?: DeliveryResult }> {
     const { task, assignee, assigner } = params;
-    const assignerName = assigner?.name || 'Someone in your household';
+    const assignerName = assigner?.name || 'Someone on your team';
     const dueDateStr = task.dueDate
       ? `${task.dueDate}${task.dueTime ? ` at ${task.dueTime}` : ''}`
       : 'Not set';
@@ -228,7 +228,7 @@ export const notifier = {
       const phoneTo = assignee.notificationPrefs?.whatsappPhone || assignee.phoneNumber;
       if (phoneTo) {
         const waMessage =
-          `🧹 *Dobby House Help — New Task Assigned*\n\n` +
+          `✨ *Dobby — The AI Elf Assistant — New Task Assigned*\n\n` +
           `👤 *Assigned By:* ${assignerName}\n` +
           `📌 *Task:* ${task.title}\n` +
           `⏰ *Due Date:* ${dueDateStr}\n` +

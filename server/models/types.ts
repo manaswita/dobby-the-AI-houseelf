@@ -40,6 +40,16 @@ export interface IGroup {
   updatedAt: string;
 }
 
+export interface IChatMessage {
+  _id: string;
+  groupId: string;
+  senderId: string;
+  senderName: string;
+  content: string;
+  isAiElf?: boolean;
+  createdAt: string;
+}
+
 export interface ISourceEvidence {
   excerpt?: string;
   confidence?: number;
