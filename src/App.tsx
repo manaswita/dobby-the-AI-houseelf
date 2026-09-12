@@ -49,12 +49,18 @@ export default function App() {
   const [selectedGroupId, setSelectedGroupId] = useState<string>('');
 
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [isDbStatusOpen, setIsDbStatusOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isChannelsModalOpen, setIsChannelsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [reconnectingDb, setReconnectingDb] = useState(false);
   const [reconnectResult, setReconnectResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  const handleOpenAuth = (mode: 'login' | 'register' = 'login') => {
+    setAuthMode(mode);
+    setIsAuthOpen(true);
+  };
 
   // Load system health
   const loadHealth = useCallback(async () => {
@@ -112,7 +118,7 @@ export default function App() {
     }
   };
 
-  // Initial bootstrap: check existing token, or auto-login with pre-seeded demo user
+  // Initial bootstrap: only restore session if user previously logged in (token exists)
   useEffect(() => {
     const init = async () => {
       setLoading(true);
@@ -124,24 +130,15 @@ export default function App() {
           const res = await api.getMe();
           setCurrentUser(res.user);
           await loadUserData();
-          setLoading(false);
-          return;
         } catch {
           api.clearToken();
+          setCurrentUser(null);
         }
+      } else {
+        setCurrentUser(null);
       }
 
-      // Auto-login with default seeded demo user (Alex Rivera) for zero friction preview
-      try {
-        const loginRes = await api.login('alex@tasklens.io', 'password123');
-        api.setToken(loginRes.token);
-        setCurrentUser(loginRes.user);
-        await loadUserData();
-      } catch (e) {
-        console.log('No active session; user can sign in via modal');
-      } finally {
-        setLoading(false);
-      }
+      setLoading(false);
     };
 
     init();
@@ -174,7 +171,7 @@ export default function App() {
         user={currentUser}
         health={health}
         unreadCount={unreadCount}
-        onOpenAuth={() => setIsAuthOpen(true)}
+        onOpenAuth={handleOpenAuth}
         onLogout={handleLogout}
         onOpenDbStatus={() => setIsDbStatusOpen(true)}
         onOpenNotifications={() => setIsNotificationsOpen(true)}
@@ -186,34 +183,17 @@ export default function App() {
 
       {/* Main Container */}
       <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 pb-20 sm:pb-6">
-        {/* Subtle Database Notice (Only if Atlas connection needs attention, clean and compact) */}
-        {!health?.database?.connectedToMongoDB && health?.database?.mongoUriProvided && (
-          <div className="px-3.5 py-2 rounded-xl bg-sky-950/40 border border-sky-500/30 flex items-center justify-between text-xs text-sky-200/90 gap-2">
-            <div className="flex items-center gap-2 truncate">
-              <Database className="w-4 h-4 text-sky-400 shrink-0" />
-              <span className="truncate">
-                Using local storage. Connect MongoDB Atlas with whitelist (0.0.0.0/0).
-              </span>
-            </div>
-            <button
-              onClick={handleReconnectDb}
-              disabled={reconnectingDb}
-              className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 font-bold text-[11px] shrink-0 hover:from-sky-300 hover:to-cyan-300 transition-colors"
-            >
-              {reconnectingDb ? 'Testing...' : 'Test DB'}
-            </button>
-          </div>
-        )}
-
         {/* Clean Household Welcome & Summary Header */}
         <div className="flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-[#0a1529]/90 border border-sky-900/40 shadow-lg shadow-sky-950/20 backdrop-blur-md">
           <div>
             <h1 className="text-base sm:text-xl font-bold text-slate-100 flex items-center gap-2">
-              <span>Welcome back{currentUser ? `, ${currentUser.name.split(' ')[0]}` : ''}!</span>
+              <span>{currentUser ? `Welcome back, ${currentUser.name.split(' ')[0]}!` : 'Welcome to Dobby!'}</span>
               <span className="text-sm">🪄</span>
             </h1>
             <p className="text-xs text-sky-200/60 mt-0.5">
-              Dobby handles your tasks, bills, commitments, and WhatsApp reminders.
+              {currentUser
+                ? 'Dobby handles your tasks, bills, commitments, and WhatsApp reminders.'
+                : 'Your faithful AI Elf assistant for family tasks, schedules, and WhatsApp reminders.'}
             </p>
           </div>
 
@@ -429,6 +409,7 @@ export default function App() {
       {/* Modals & Drawers */}
       <AuthModal
         isOpen={isAuthOpen}
+        initialMode={authMode}
         onClose={() => setIsAuthOpen(false)}
         onSuccess={(user) => {
           setCurrentUser(user);

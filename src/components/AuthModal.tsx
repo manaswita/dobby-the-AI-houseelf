@@ -7,16 +7,30 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (user: UserProfile) => void;
+  initialMode?: 'login' | 'register';
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => {
-  const [isRegister, setIsRegister] = useState(false);
+export const AuthModal: React.FC<AuthModalProps> = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  initialMode = 'login',
+}) => {
+  const [isRegister, setIsRegister] = useState(initialMode === 'register');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Sync with initialMode when modal is opened
+  React.useEffect(() => {
+    if (isOpen) {
+      setIsRegister(initialMode === 'register');
+      setError(null);
+    }
+  }, [isOpen, initialMode]);
 
   if (!isOpen) return null;
 
@@ -69,16 +83,48 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           <X className="w-5 h-5" />
         </button>
 
-        <div className="mb-6 text-center">
+        <div className="mb-5 text-center">
           <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-gradient-to-tr from-slate-900 to-indigo-950 border border-cyan-500/30 text-cyan-300 flex items-center justify-center font-bold text-2xl font-cinzel shadow-lg shadow-cyan-500/20">
             𝔇
           </div>
           <h2 className="text-xl font-bold font-cinzel tracking-wider text-slate-100">
-            {isRegister ? 'Register with Dobby' : 'Sign in to Dobby'}
+            {isRegister ? 'Create Your Account' : 'Welcome to Dobby'}
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Dobby - The AI Elf Assistant • Task &amp; Reminder Management with Node.js &amp; MongoDB
+            Your faithful AI Elf task &amp; reminder assistant
           </p>
+
+          {/* Segmented Sign In / Sign Up Switcher */}
+          <div className="grid grid-cols-2 gap-1 p-1 bg-slate-950 border border-slate-800 rounded-xl mt-4">
+            <button
+              type="button"
+              onClick={() => {
+                setIsRegister(false);
+                setError(null);
+              }}
+              className={`py-2 text-xs font-bold rounded-lg transition-all ${
+                !isRegister
+                  ? 'bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsRegister(true);
+                setError(null);
+              }}
+              className={`py-2 text-xs font-bold rounded-lg transition-all ${
+                isRegister
+                  ? 'bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              Sign Up / Register
+            </button>
+          </div>
         </div>
 
         {/* Quick Demo Logins */}

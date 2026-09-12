@@ -19,7 +19,7 @@ interface HeaderProps {
   user: UserProfile | null;
   health: SystemHealth | null;
   unreadCount: number;
-  onOpenAuth: () => void;
+  onOpenAuth: (mode?: 'login' | 'register') => void;
   onLogout: () => void;
   onOpenDbStatus: () => void;
   onOpenNotifications: () => void;
@@ -140,19 +140,36 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
               </div>
             ) : (
-              <button
-                id="btn-signin-header"
-                onClick={onOpenAuth}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-400 to-cyan-400 hover:from-sky-300 hover:to-cyan-300 text-slate-950 text-xs font-bold transition-all shadow-sm shadow-cyan-500/20"
-              >
-                <User className="w-3.5 h-3.5" />
-                <span>Sign In</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  id="btn-signin-header"
+                  onClick={() => onOpenAuth('login')}
+                  className="px-3 py-1.5 rounded-xl text-xs font-semibold text-sky-200 hover:text-white hover:bg-sky-900/30 border border-sky-800/40 transition-all"
+                >
+                  Sign In
+                </button>
+                <button
+                  id="btn-signup-header"
+                  onClick={() => onOpenAuth('register')}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-400 to-cyan-400 hover:from-sky-300 hover:to-cyan-300 text-slate-950 text-xs font-bold transition-all shadow-sm shadow-cyan-500/20"
+                >
+                  <User className="w-3.5 h-3.5" />
+                  <span>Sign Up</span>
+                </button>
+              </div>
             )}
           </div>
 
           {/* Mobile Actions Bar */}
           <div className="flex items-center gap-1.5 md:hidden">
+            {!user && (
+              <button
+                onClick={() => onOpenAuth('login')}
+                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 shadow-sm"
+              >
+                Sign In
+              </button>
+            )}
             {/* WhatsApp Quick Icon */}
             {user && onOpenAlertSettings && (
               <button
@@ -233,16 +250,27 @@ export const Header: React.FC<HeaderProps> = ({
                   </button>
                 </div>
               ) : (
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onOpenAuth();
-                  }}
-                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-cyan-500/20"
-                >
-                  <User className="w-4 h-4" />
-                  <span>Sign In / Register</span>
-                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenAuth('login');
+                    }}
+                    className="py-2.5 rounded-xl bg-[#0e1d38] border border-sky-800/50 text-sky-200 hover:text-white font-bold text-xs flex items-center justify-center transition-colors"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenAuth('register');
+                    }}
+                    className="py-2.5 rounded-xl bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-cyan-500/20"
+                  >
+                    <User className="w-3.5 h-3.5" />
+                    <span>Sign Up</span>
+                  </button>
+                </div>
               )}
 
               {/* Menu Items */}
