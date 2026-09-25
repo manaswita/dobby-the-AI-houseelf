@@ -3,24 +3,6 @@
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #060d19;
-    color: #e2e8f0;
-  }
-
-  /* Custom cool scrollbars */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #060d19;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #162644;
-    border-radius: 9999px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #0284c7;
   }
 }
 
@@ -46,4 +28,3 @@
 .animate-pensieve-ripple {
   animation: pensieve-ripple 8s ease-in-out infinite;
 }
-

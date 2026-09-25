@@ -80,10 +80,6 @@ export const api = {
     return request<{ groups: any[] }>('/api/groups');
   },
 
-  getAvailableUsers() {
-    return request<{ users: { _id: string; name: string; email: string; phoneNumber?: string; timeZone?: string }[] }>('/api/groups/available-users');
-  },
-
   createGroup(name: string, description: string, type: string) {
     return request<{ group: any }>('/api/groups', {
       method: 'POST',
@@ -91,48 +87,10 @@ export const api = {
     });
   },
 
-  updateGroup(groupId: string, data: { name?: string; description?: string; type?: string }) {
-    return request<{ message: string; group: any }>(`/api/groups/${groupId}`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    });
-  },
-
   joinGroup(inviteCode: string) {
     return request<{ message: string; group: any }>('/api/groups/join', {
       method: 'POST',
       body: JSON.stringify({ inviteCode }),
-    });
-  },
-
-  addMember(groupId: string, data: { userId?: string; email?: string; role?: 'admin' | 'member' }) {
-    return request<{ message: string; group: any }>(`/api/groups/${groupId}/members`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  },
-
-  removeMember(groupId: string, memberId: string) {
-    return request<{ message: string; group: any }>(`/api/groups/${groupId}/members/${memberId}`, {
-      method: 'DELETE',
-    });
-  },
-
-  // Family & Group Chat
-  getMessages(groupId: string) {
-    return request<{ messages: any[] }>(`/api/groups/${groupId}/messages`);
-  },
-
-  sendMessage(groupId: string, content: string, askElf?: boolean) {
-    return request<{ message: string; userMessage: any; elfMessage?: any; messages: any[] }>(`/api/groups/${groupId}/messages`, {
-      method: 'POST',
-      body: JSON.stringify({ content, askElf }),
-    });
-  },
-
-  deleteMessage(groupId: string, messageId: string) {
-    return request<{ message: string }>(`/api/groups/${groupId}/messages/${messageId}`, {
-      method: 'DELETE',
     });
   },
 
@@ -173,23 +131,6 @@ export const api = {
     return request<{ reminders: any[] }>('/api/reminders');
   },
 
-  createTaskReminder(
-    taskId: string,
-    data: {
-      amount?: number;
-      unit?: 'hours' | 'days' | 'minutes';
-      triggerTime?: string;
-      title?: string;
-      targetDueDate?: string;
-      targetDueTime?: string;
-    }
-  ) {
-    return request<{ reminder: any; task?: any }>(`/api/tasks/${taskId}/reminders`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  },
-
   snoozeReminder(id: string, minutes: number = 15) {
     return request<{ reminder: any }>(`/api/reminders/${id}/snooze`, {
       method: 'POST',
@@ -200,12 +141,6 @@ export const api = {
   dismissReminder(id: string) {
     return request<{ reminder: any }>(`/api/reminders/${id}/dismiss`, {
       method: 'POST',
-    });
-  },
-
-  deleteReminder(id: string) {
-    return request<{ message: string }>(`/api/reminders/${id}`, {
-      method: 'DELETE',
     });
   },
 

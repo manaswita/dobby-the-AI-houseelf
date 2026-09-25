@@ -128,14 +128,14 @@ router.post('/test-whatsapp', authenticateToken, async (req: AuthRequest, res: R
     }
 
     const testMessage =
-      `✨ *Dobby — The AI Elf Assistant | WhatsApp Alerts Active!*\n\n` +
+      `🧹 *Dobby House Help — WhatsApp Alerts Active!*\n\n` +
       `Hello *${req.user.name}*, your WhatsApp notification channel is connected to Dobby.\n\n` +
       `📌 You will receive real-time alerts for:\n` +
-      `• Task assignments & updates\n` +
+      `• Household task assignments\n` +
       `• Scheduled deadlines & reminders\n` +
-      `• Shared family & team handoffs\n\n` +
+      `• Family task handoffs\n\n` +
       `Dashboard: ${config.appUrl}\n` +
-      `_Dobby is ready to assist you!_`;
+      `_Dobby is ready at your service!_`;
 
     const result = await notifier.sendWhatsApp({
       userId: req.user._id,

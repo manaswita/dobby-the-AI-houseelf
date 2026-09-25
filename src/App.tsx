@@ -15,7 +15,6 @@ import {
   AlertCircle,
   Mail,
   MessageSquare,
-  BookOpen,
 } from 'lucide-react';
 import { api } from './api';
 import {
@@ -36,7 +35,6 @@ import { NotificationsDrawer } from './components/NotificationsDrawer';
 import { DbStatusModal } from './components/DbStatusModal';
 import { ApiConsole } from './components/ApiConsole';
 import { NotificationChannelsModal } from './components/NotificationChannelsModal';
-import { CapabilitiesGuide } from './components/CapabilitiesGuide';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
@@ -47,22 +45,16 @@ export default function App() {
   const [users, setUsers] = useState<Array<{ _id: string; name: string }>>([]);
   const [health, setHealth] = useState<SystemHealth | null>(null);
 
-  const [activeTab, setActiveTab] = useState<'tasks' | 'reminders' | 'groups' | 'capabilities' | 'api'>('tasks');
+  const [activeTab, setActiveTab] = useState<'tasks' | 'reminders' | 'groups' | 'api'>('tasks');
   const [selectedGroupId, setSelectedGroupId] = useState<string>('');
 
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [isDbStatusOpen, setIsDbStatusOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isChannelsModalOpen, setIsChannelsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [reconnectingDb, setReconnectingDb] = useState(false);
   const [reconnectResult, setReconnectResult] = useState<{ success: boolean; message: string } | null>(null);
-
-  const handleOpenAuth = (mode: 'login' | 'register' = 'login') => {
-    setAuthMode(mode);
-    setIsAuthOpen(true);
-  };
 
   // Load system health
   const loadHealth = useCallback(async () => {
@@ -120,7 +112,7 @@ export default function App() {
     }
   };
 
-  // Initial bootstrap: only restore session if user previously logged in (token exists)
+  // Initial bootstrap: check existing token, or auto-login with pre-seeded demo user
   useEffect(() => {
     const init = async () => {
       setLoading(true);
@@ -132,15 +124,24 @@ export default function App() {
           const res = await api.getMe();
           setCurrentUser(res.user);
           await loadUserData();
+          setLoading(false);
+          return;
         } catch {
           api.clearToken();
-          setCurrentUser(null);
         }
-      } else {
-        setCurrentUser(null);
       }
 
-      setLoading(false);
+      // Auto-login with default seeded demo user (Alex Rivera) for zero friction preview
+      try {
+        const loginRes = await api.login('alex@tasklens.io', 'password123');
+        api.setToken(loginRes.token);
+        setCurrentUser(loginRes.user);
+        await loadUserData();
+      } catch (e) {
+        console.log('No active session; user can sign in via modal');
+      } finally {
+        setLoading(false);
+      }
     };
 
     init();
@@ -158,22 +159,13 @@ export default function App() {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="min-h-screen bg-[#060d19] text-slate-100 flex flex-col font-sans selection:bg-sky-500 selection:text-slate-950 relative overflow-x-hidden">
-      {/* Cool Ambient Lighting in background */}
-      <div
-        className="pointer-events-none fixed inset-0 z-0 opacity-80"
-        style={{
-          background:
-            'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(14, 165, 233, 0.12), transparent 70%), radial-gradient(circle 900px at 85% 15%, rgba(56, 189, 248, 0.05), transparent 70%)',
-        }}
-      />
-
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-slate-950">
       {/* Top Header */}
       <Header
         user={currentUser}
         health={health}
         unreadCount={unreadCount}
-        onOpenAuth={handleOpenAuth}
+        onOpenAuth={() => setIsAuthOpen(true)}
         onLogout={handleLogout}
         onOpenDbStatus={() => setIsDbStatusOpen(true)}
         onOpenNotifications={() => setIsNotificationsOpen(true)}
@@ -184,27 +176,44 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 pb-20 sm:pb-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 pb-20 sm:pb-6">
+        {/* Subtle Database Notice (Only if Atlas connection needs attention, clean and compact) */}
+        {!health?.database?.connectedToMongoDB && health?.database?.mongoUriProvided && (
+          <div className="px-3.5 py-2 rounded-xl bg-amber-950/30 border border-amber-500/30 flex items-center justify-between text-xs text-amber-200/90 gap-2">
+            <div className="flex items-center gap-2 truncate">
+              <Database className="w-4 h-4 text-amber-400 shrink-0" />
+              <span className="truncate">
+                Using local storage. Connect MongoDB Atlas with whitelist (0.0.0.0/0).
+              </span>
+            </div>
+            <button
+              onClick={handleReconnectDb}
+              disabled={reconnectingDb}
+              className="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold text-[11px] shrink-0 hover:bg-amber-400 transition-colors"
+            >
+              {reconnectingDb ? 'Testing...' : 'Test DB'}
+            </button>
+          </div>
+        )}
+
         {/* Clean Household Welcome & Summary Header */}
-        <div className="flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-[#0a1529]/90 border border-sky-900/40 shadow-lg shadow-sky-950/20 backdrop-blur-md">
+        <div className="flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 shadow-sm">
           <div>
             <h1 className="text-base sm:text-xl font-bold text-slate-100 flex items-center gap-2">
-              <span>{currentUser ? `Welcome back, ${currentUser.name.split(' ')[0]}!` : 'Welcome to Dobby!'}</span>
+              <span>Welcome back{currentUser ? `, ${currentUser.name.split(' ')[0]}` : ''}!</span>
               <span className="text-sm">🪄</span>
             </h1>
-            <p className="text-xs text-sky-200/60 mt-0.5">
-              {currentUser
-                ? 'Dobby handles your tasks, bills, commitments, and WhatsApp reminders.'
-                : 'Your faithful AI Elf assistant for family tasks, schedules, and WhatsApp reminders.'}
+            <p className="text-xs text-slate-400 mt-0.5">
+              Dobby handles your household bills, school slips, notes, and WhatsApp reminders.
             </p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
             <div className="hidden sm:flex items-center gap-2 text-xs font-semibold">
-              <span className="px-2.5 py-1 rounded-lg bg-[#0e1d38] text-sky-200 border border-sky-800/50">
+              <span className="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700/60">
                 {tasks.filter((t) => t.status !== 'completed').length} Tasks
               </span>
-              <span className="px-2.5 py-1 rounded-lg bg-sky-950/70 text-sky-300 border border-sky-500/30">
+              <span className="px-2.5 py-1 rounded-lg bg-cyan-950/60 text-cyan-300 border border-cyan-500/30">
                 {reminders.filter((r) => r.status === 'scheduled').length} Reminders
               </span>
             </div>
@@ -214,7 +223,7 @@ export default function App() {
                 loadHealth();
                 loadUserData();
               }}
-              className="p-2 rounded-xl bg-[#0e1d38] hover:bg-[#14284d] text-sky-300 hover:text-white transition-colors border border-sky-900/40"
+              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-750 text-slate-300 hover:text-white transition-colors"
               title="Refresh data"
             >
               <RefreshCw className="w-4 h-4" />
@@ -233,21 +242,21 @@ export default function App() {
         />
 
         {/* Navigation Tabs (Desktop & Tablet) */}
-        <div className="border-b border-sky-900/40 flex items-center justify-between gap-2 overflow-x-auto pb-1 text-sm font-semibold">
+        <div className="border-b border-slate-800 flex items-center justify-between gap-2 overflow-x-auto pb-1 text-sm font-semibold">
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               onClick={() => setActiveTab('tasks')}
               className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl transition-all whitespace-nowrap text-xs sm:text-sm ${
                 activeTab === 'tasks'
-                  ? 'bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
-                  : 'text-sky-200/70 hover:text-white hover:bg-[#0c182f]'
+                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm shadow-cyan-500/20'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
               }`}
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Tasks</span>
               <span
                 className={`text-[10px] sm:text-xs px-1.5 py-0.2 rounded-full font-bold ${
-                  activeTab === 'tasks' ? 'bg-slate-950 text-cyan-400' : 'bg-[#0e1d38] text-sky-300'
+                  activeTab === 'tasks' ? 'bg-slate-950 text-cyan-400' : 'bg-slate-800 text-slate-300'
                 }`}
               >
                 {tasks.length}
@@ -258,15 +267,15 @@ export default function App() {
               onClick={() => setActiveTab('reminders')}
               className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl transition-all whitespace-nowrap text-xs sm:text-sm ${
                 activeTab === 'reminders'
-                  ? 'bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
-                  : 'text-sky-200/70 hover:text-white hover:bg-[#0c182f]'
+                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm shadow-cyan-500/20'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
               }`}
             >
               <Clock className="w-4 h-4" />
               <span>Reminders</span>
               <span
                 className={`text-[10px] sm:text-xs px-1.5 py-0.2 rounded-full font-bold ${
-                  activeTab === 'reminders' ? 'bg-slate-950 text-cyan-400' : 'bg-[#0e1d38] text-sky-300'
+                  activeTab === 'reminders' ? 'bg-slate-950 text-cyan-400' : 'bg-slate-800 text-slate-300'
                 }`}
               >
                 {reminders.filter((r) => r.status !== 'dismissed').length}
@@ -277,15 +286,15 @@ export default function App() {
               onClick={() => setActiveTab('groups')}
               className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl transition-all whitespace-nowrap text-xs sm:text-sm ${
                 activeTab === 'groups'
-                  ? 'bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
-                  : 'text-sky-200/70 hover:text-white hover:bg-[#0c182f]'
+                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm shadow-cyan-500/20'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
               }`}
             >
               <Users className="w-4 h-4" />
-              <span>Family &amp; Chat</span>
+              <span>Family</span>
               <span
                 className={`text-[10px] sm:text-xs px-1.5 py-0.2 rounded-full font-bold ${
-                  activeTab === 'groups' ? 'bg-slate-950 text-cyan-400' : 'bg-[#0e1d38] text-sky-300'
+                  activeTab === 'groups' ? 'bg-slate-950 text-cyan-400' : 'bg-slate-800 text-slate-300'
                 }`}
               >
                 {groups.length}
@@ -293,31 +302,11 @@ export default function App() {
             </button>
 
             <button
-              id="tab-capabilities-btn"
-              onClick={() => setActiveTab('capabilities')}
-              className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl transition-all whitespace-nowrap text-xs sm:text-sm ${
-                activeTab === 'capabilities'
-                  ? 'bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
-                  : 'text-sky-200/70 hover:text-white hover:bg-[#0c182f]'
-              }`}
-            >
-              <BookOpen className="w-4 h-4" />
-              <span>What Dobby Can Do</span>
-              <span
-                className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold uppercase tracking-wider ${
-                  activeTab === 'capabilities' ? 'bg-slate-950 text-cyan-400' : 'bg-sky-500/20 text-sky-300'
-                }`}
-              >
-                Guide
-              </span>
-            </button>
-
-            <button
               onClick={() => setActiveTab('api')}
               className={`hidden md:flex items-center gap-2 px-3.5 py-2 rounded-xl transition-all whitespace-nowrap text-xs ${
                 activeTab === 'api'
-                  ? 'bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
-                  : 'text-sky-200/70 hover:text-white hover:bg-[#0c182f]'
+                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm shadow-cyan-500/20'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
               }`}
             >
               <Terminal className="w-3.5 h-3.5" />
@@ -341,7 +330,6 @@ export default function App() {
         {activeTab === 'tasks' && (
           <TaskList
             tasks={tasks}
-            reminders={reminders}
             groups={groups}
             users={users}
             currentUser={currentUser}
@@ -375,27 +363,17 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'capabilities' && (
-          <CapabilitiesGuide
-            onNavigateTab={(tab) => setActiveTab(tab)}
-            onOpenWhatsAppModal={() => setIsChannelsModalOpen(true)}
-            onScrollToIngest={() => {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-          />
-        )}
-
         {activeTab === 'api' && <ApiConsole />}
       </main>
 
       {/* Mobile Sticky Bottom Navigation Bar */}
-      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#060d19]/95 border-t border-sky-900/40 backdrop-blur-xl px-2 py-1.5 flex items-center justify-around shadow-2xl shadow-sky-950">
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 border-t border-slate-800 backdrop-blur-lg px-2 py-1.5 flex items-center justify-around">
         <button
           onClick={() => setActiveTab('tasks')}
           className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
             activeTab === 'tasks'
-              ? 'text-sky-400 font-bold'
-              : 'text-sky-200/60 hover:text-white'
+              ? 'text-cyan-400 font-bold'
+              : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <CheckCircle2 className="w-5 h-5" />
@@ -406,8 +384,8 @@ export default function App() {
           onClick={() => setActiveTab('reminders')}
           className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
             activeTab === 'reminders'
-              ? 'text-sky-400 font-bold'
-              : 'text-sky-200/60 hover:text-white'
+              ? 'text-cyan-400 font-bold'
+              : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <Clock className="w-5 h-5" />
@@ -418,24 +396,12 @@ export default function App() {
           onClick={() => setActiveTab('groups')}
           className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
             activeTab === 'groups'
-              ? 'text-sky-400 font-bold'
-              : 'text-sky-200/60 hover:text-white'
+              ? 'text-cyan-400 font-bold'
+              : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <Users className="w-5 h-5" />
-          <span className="text-[10px]">Families</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('capabilities')}
-          className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
-            activeTab === 'capabilities'
-              ? 'text-sky-400 font-bold'
-              : 'text-sky-200/60 hover:text-white'
-          }`}
-        >
-          <BookOpen className="w-5 h-5" />
-          <span className="text-[10px]">Guide</span>
+          <span className="text-[10px]">Family</span>
         </button>
 
         <button
@@ -453,7 +419,6 @@ export default function App() {
       {/* Modals & Drawers */}
       <AuthModal
         isOpen={isAuthOpen}
-        initialMode={authMode}
         onClose={() => setIsAuthOpen(false)}
         onSuccess={(user) => {
           setCurrentUser(user);

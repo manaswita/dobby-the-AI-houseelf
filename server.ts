@@ -45,11 +45,27 @@ async function startServer() {
   // Direct project ZIP download route for instant migration between accounts
   app.get('/api/download-project-zip', (req, res) => {
     const zipPath = path.join(process.cwd(), 'public', 'dobby-project.zip');
-    res.download(zipPath, 'dobby-ai-elf-assistant.zip', (err) => {
+    res.download(zipPath, 'dobby-house-help.zip', (err) => {
       if (err && !res.headersSent) {
         res.status(500).json({ error: 'Failed to download zip' });
       }
     });
+  });
+
+  // Database error fallback middleware
+  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (
+      err?.name === 'MongooseError' ||
+      err?.name === 'MongoNetworkError' ||
+      (typeof err?.message === 'string' && err.message.includes('buffering timed out'))
+    ) {
+      console.warn('[AI Studio] Database offline — returning fallback response');
+      if (req.method === 'GET') {
+        return res.json(req.path.endsWith('s') || req.path.endsWith('s/') ? [] : {});
+      }
+      return res.status(503).json({ error: 'Service temporarily unavailable (database offline)' });
+    }
+    next(err);
   });
 
   // Vite middleware for development vs Static files in production

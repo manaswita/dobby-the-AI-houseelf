@@ -24,7 +24,6 @@ export interface IUser {
 
 export interface IGroupMember {
   userId: string;
-  name?: string;
   role: 'admin' | 'member';
   joinedAt: string;
 }
@@ -39,16 +38,6 @@ export interface IGroup {
   inviteCode: string;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface IChatMessage {
-  _id: string;
-  groupId: string;
-  senderId: string;
-  senderName: string;
-  content: string;
-  isAiElf?: boolean;
-  createdAt: string;
 }
 
 export interface ISourceEvidence {

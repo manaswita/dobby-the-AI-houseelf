@@ -19,7 +19,7 @@ interface HeaderProps {
   user: UserProfile | null;
   health: SystemHealth | null;
   unreadCount: number;
-  onOpenAuth: (mode?: 'login' | 'register') => void;
+  onOpenAuth: () => void;
   onLogout: () => void;
   onOpenDbStatus: () => void;
   onOpenNotifications: () => void;
@@ -47,24 +47,24 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      <header className="border-b border-sky-900/40 bg-[#060d19]/90 backdrop-blur-md sticky top-0 z-40 shadow-sm shadow-sky-950/20">
+      <header className="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
           {/* Brand & Identity */}
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-sky-950 via-[#0a1529] to-cyan-950 border border-sky-500/30 flex items-center justify-center text-sky-400 shadow-sm shadow-sky-500/20">
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-sky-400" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-cyan-950 via-slate-900 to-indigo-950 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-sm shadow-cyan-500/20">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
             </div>
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className="font-cinzel font-bold text-slate-100 tracking-wide text-base sm:text-lg">
                   Dobby
                 </span>
-                <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30">
-                  The AI Elf Assistant
+                <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                  House Help
                 </span>
               </div>
-              <p className="text-[10px] text-sky-200/60 hidden sm:block">
-                Your faithful AI Elf task &amp; reminder assistant
+              <p className="text-[10px] text-slate-400 hidden sm:block">
+                Your faithful household task &amp; reminder assistant
               </p>
             </div>
           </div>
@@ -93,24 +93,25 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
                 isMongo
                   ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300 hover:bg-emerald-900/40'
-                  : 'bg-[#0a1529] border-sky-900/40 text-sky-200 hover:bg-[#0e1d38] hover:border-sky-700/50'
+                  : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-850'
               }`}
             >
-              <Database className="w-3.5 h-3.5 text-sky-400" />
+              <Database className="w-3.5 h-3.5 text-cyan-400" />
               <span>{isMongo ? 'MongoDB Atlas' : 'Local Basin'}</span>
               <span
                 className={`w-2 h-2 rounded-full ${
-                  isMongo ? 'bg-emerald-400' : 'bg-sky-400'
+                  isMongo ? 'bg-emerald-400' : 'bg-emerald-400'
                 }`}
               />
             </button>
+
 
             {/* Notifications */}
             {user && (
               <button
                 id="btn-notifications"
                 onClick={onOpenNotifications}
-                className="relative p-2 rounded-xl text-sky-300/70 hover:text-sky-100 hover:bg-[#0a1529] transition-colors"
+                className="relative p-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition-colors"
                 title="Notifications"
               >
                 <Bell className="w-4 h-4" />
@@ -124,51 +125,34 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* User Account */}
             {user ? (
-              <div className="flex items-center gap-2 pl-2 border-l border-sky-900/40">
+              <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
                 <div className="text-right">
                   <div className="text-xs font-bold text-slate-200 leading-tight">{user.name}</div>
-                  <div className="text-[10px] text-sky-200/60 truncate max-w-[120px]">{user.email}</div>
+                  <div className="text-[10px] text-slate-400 truncate max-w-[120px]">{user.email}</div>
                 </div>
                 <button
                   id="btn-logout"
                   onClick={onLogout}
-                  className="p-2 rounded-xl text-sky-300/70 hover:text-rose-400 hover:bg-rose-950/20 transition-colors"
+                  className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-950/20 transition-colors"
                   title="Sign out"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  id="btn-signin-header"
-                  onClick={() => onOpenAuth('login')}
-                  className="px-3 py-1.5 rounded-xl text-xs font-semibold text-sky-200 hover:text-white hover:bg-sky-900/30 border border-sky-800/40 transition-all"
-                >
-                  Sign In
-                </button>
-                <button
-                  id="btn-signup-header"
-                  onClick={() => onOpenAuth('register')}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-400 to-cyan-400 hover:from-sky-300 hover:to-cyan-300 text-slate-950 text-xs font-bold transition-all shadow-sm shadow-cyan-500/20"
-                >
-                  <User className="w-3.5 h-3.5" />
-                  <span>Sign Up</span>
-                </button>
-              </div>
+              <button
+                id="btn-signin-header"
+                onClick={onOpenAuth}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-sm shadow-cyan-500/20"
+              >
+                <User className="w-3.5 h-3.5" />
+                <span>Sign In</span>
+              </button>
             )}
           </div>
 
           {/* Mobile Actions Bar */}
           <div className="flex items-center gap-1.5 md:hidden">
-            {!user && (
-              <button
-                onClick={() => onOpenAuth('login')}
-                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 shadow-sm"
-              >
-                Sign In
-              </button>
-            )}
             {/* WhatsApp Quick Icon */}
             {user && onOpenAlertSettings && (
               <button
@@ -213,20 +197,20 @@ export const Header: React.FC<HeaderProps> = ({
       {mobileMenuOpen && (
         <div className="md:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-fade-in">
           <div
-            className="fixed top-0 right-0 bottom-0 w-4/5 max-w-xs bg-[#070e1c] border-l border-sky-900/40 p-5 flex flex-col justify-between shadow-2xl"
+            className="fixed top-0 right-0 bottom-0 w-4/5 max-w-xs bg-slate-950 border-l border-slate-800 p-5 flex flex-col justify-between shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-sky-900/40">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
+                  <div className="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
                     <Sparkles className="w-3.5 h-3.5" />
                   </div>
                   <span className="font-cinzel font-bold text-slate-100 text-sm">Dobby Menu</span>
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-1.5 rounded-lg text-sky-300/70 hover:text-white hover:bg-[#0c182f]"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-900"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -234,9 +218,9 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* User Info */}
               {user ? (
-                <div className="p-3 rounded-xl bg-[#0b1528] border border-sky-900/40">
+                <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
                   <div className="text-xs font-bold text-slate-200">{user.name}</div>
-                  <div className="text-[11px] text-sky-200/60 truncate">{user.email}</div>
+                  <div className="text-[11px] text-slate-400 truncate">{user.email}</div>
                   <button
                     onClick={() => {
                       setMobileMenuOpen(false);
@@ -249,27 +233,16 @@ export const Header: React.FC<HeaderProps> = ({
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      onOpenAuth('login');
-                    }}
-                    className="py-2.5 rounded-xl bg-[#0e1d38] border border-sky-800/50 text-sky-200 hover:text-white font-bold text-xs flex items-center justify-center transition-colors"
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      onOpenAuth('register');
-                    }}
-                    className="py-2.5 rounded-xl bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-cyan-500/20"
-                  >
-                    <User className="w-3.5 h-3.5" />
-                    <span>Sign Up</span>
-                  </button>
-                </div>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenAuth();
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs flex items-center justify-center gap-2"
+                >
+                  <User className="w-4 h-4" />
+                  <span>Sign In / Register</span>
+                </button>
               )}
 
               {/* Menu Items */}
@@ -295,19 +268,21 @@ export const Header: React.FC<HeaderProps> = ({
                     setMobileMenuOpen(false);
                     onOpenDbStatus();
                   }}
-                  className="w-full flex items-center justify-between p-3 rounded-xl bg-[#0b1528] border border-sky-900/40 text-sky-200 text-xs font-semibold text-left"
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold text-left"
                 >
                   <div className="flex items-center gap-2">
-                    <Database className="w-4 h-4 text-sky-400" />
+                    <Database className="w-4 h-4 text-cyan-400" />
                     <span>Database Status</span>
                   </div>
-                  <span className="w-2 h-2 rounded-full bg-sky-400" />
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
                 </button>
+
+
               </div>
             </div>
 
-            <div className="text-[10px] text-sky-300/50 text-center pt-4 border-t border-sky-900/30">
-              Dobby — The AI Elf Assistant
+            <div className="text-[10px] text-slate-500 text-center pt-4 border-t border-slate-900">
+              Dobby — Household Assistant
             </div>
           </div>
         </div>

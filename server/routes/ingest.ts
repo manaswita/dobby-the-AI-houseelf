@@ -17,7 +17,7 @@ const upload = multer({
 
 // POST /api/ingest/analyze
 // Supports both multipart/form-data (single or multiple file uploads) and application/json (pasted text / base64 image / SMS / WhatsApp)
-router.post('/analyze', upload.any(), authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
+router.post('/analyze', upload.any() as any, authenticateToken as any, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({ error: 'Unauthorized' });

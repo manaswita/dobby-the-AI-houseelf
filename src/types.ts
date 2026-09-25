@@ -25,24 +25,6 @@ export interface GroupMember {
   joinedAt: string;
 }
 
-export interface ChatMessage {
-  _id: string;
-  groupId: string;
-  senderId: string;
-  senderName: string;
-  content: string;
-  isAiElf?: boolean;
-  createdAt: string;
-}
-
-export interface RegisteredUser {
-  _id: string;
-  name: string;
-  email: string;
-  phoneNumber?: string;
-  timeZone?: string;
-}
-
 export interface Group {
   _id: string;
   name: string;

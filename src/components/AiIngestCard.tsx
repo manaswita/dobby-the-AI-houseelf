@@ -385,39 +385,39 @@ export const AiIngestCard: React.FC<AiIngestCardProps> = ({
   };
 
   return (
-    <div className="bg-[#0a1529]/90 border border-sky-900/40 rounded-2xl p-4 sm:p-6 shadow-xl shadow-sky-950/20 relative overflow-hidden backdrop-blur-md">
+    <div className="bg-slate-900/90 border border-slate-800/90 rounded-2xl p-4 sm:p-6 shadow-xl relative overflow-hidden">
       {/* Decorative ambient shimmer blur */}
-      <div className="absolute -top-16 -right-16 w-56 h-56 bg-sky-500/10 rounded-full blur-3xl pointer-events-none animate-pensieve-ripple" />
-      <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-16 -right-16 w-56 h-56 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none animate-pensieve-ripple" />
+      <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header & Title */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 sm:p-2.5 rounded-xl bg-gradient-to-tr from-sky-950 via-[#0e1d38] to-cyan-950 border border-sky-500/30 text-sky-300 shadow-sm shadow-sky-500/20 shrink-0">
-            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-sky-400" />
+          <div className="p-2 sm:p-2.5 rounded-xl bg-gradient-to-tr from-slate-900 to-indigo-950 border border-cyan-500/30 text-cyan-300 shadow-sm shadow-cyan-500/20 shrink-0">
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
           </div>
           <div>
             <h2 className="text-sm sm:text-base font-bold font-cinzel text-slate-100 flex items-center gap-2">
               Dobby&apos;s Memory Desk
-              <span className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30">
+              <span className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/25">
                 AI Ingestion
               </span>
             </h2>
-            <p className="text-xs text-sky-200/60">
+            <p className="text-xs text-slate-400">
               Upload photos, documents, bills, or paste WhatsApp messages — Dobby extracts all commitments.
             </p>
           </div>
         </div>
 
         {/* Input Mode Selector */}
-        <div className="flex items-center p-1 rounded-xl bg-[#060e1d] border border-sky-900/40 text-xs font-semibold w-full sm:w-auto">
+        <div className="flex items-center p-1 rounded-xl bg-slate-950/80 border border-slate-800 text-xs font-semibold w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setActiveMode('upload')}
             className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${
               activeMode === 'upload'
-                ? 'bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 shadow-sm font-bold'
-                : 'text-sky-200/70 hover:text-white'
+                ? 'bg-cyan-500 text-slate-950 shadow-sm font-bold'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             <UploadCloud className="w-3.5 h-3.5" />
@@ -428,8 +428,8 @@ export const AiIngestCard: React.FC<AiIngestCardProps> = ({
             onClick={() => setActiveMode('paste')}
             className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${
               activeMode === 'paste'
-                ? 'bg-gradient-to-r from-sky-400 to-cyan-400 text-slate-950 shadow-sm font-bold'
-                : 'text-sky-200/70 hover:text-white'
+                ? 'bg-cyan-500 text-slate-950 shadow-sm font-bold'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             <MessageSquare className="w-3.5 h-3.5" />
@@ -440,7 +440,7 @@ export const AiIngestCard: React.FC<AiIngestCardProps> = ({
 
       {/* Preset Scrolls Quick Selector (Compact Horizontal Scroll) */}
       <div className="mb-3.5 flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
-        <span className="text-[11px] font-bold text-sky-400/60 shrink-0 whitespace-nowrap pl-0.5">
+        <span className="text-[11px] font-bold text-slate-500 shrink-0 whitespace-nowrap pl-0.5">
           Samples:
         </span>
         {SAMPLE_PRESETS.map((sample) => (
@@ -456,7 +456,7 @@ export const AiIngestCard: React.FC<AiIngestCardProps> = ({
               setError(null);
               setSuccessMsg(`Loaded sample: ${sample.label}`);
             }}
-            className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-[#060e1d] hover:bg-[#0e1d38] text-sky-200/80 border border-sky-900/40 hover:border-sky-500/40 transition-colors whitespace-nowrap shrink-0"
+            className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-slate-950/70 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-slate-700 transition-colors whitespace-nowrap shrink-0"
           >
             {sample.label}
           </button>
@@ -505,24 +505,24 @@ export const AiIngestCard: React.FC<AiIngestCardProps> = ({
               onDragLeave={handleDragLeave}
               className={`border-2 border-dashed rounded-2xl p-5 sm:p-7 text-center transition-all cursor-pointer relative ${
                 isDragOver
-                  ? 'border-sky-400 bg-sky-950/30 shadow-lg shadow-sky-500/20'
-                  : 'border-sky-900/40 hover:border-sky-500/40 bg-[#060e1d]/60 hover:bg-[#081226]/80'
+                  ? 'border-cyan-400 bg-cyan-950/20 shadow-lg shadow-cyan-500/10'
+                  : 'border-slate-800 hover:border-slate-700 bg-slate-950/40 hover:bg-slate-950/60'
               }`}
               onClick={() => fileInputRef.current?.click()}
             >
               <div className="space-y-2.5 py-1">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-sky-500/15 border border-sky-500/30 text-sky-300 flex items-center justify-center mx-auto shadow-sm">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 flex items-center justify-center mx-auto shadow-sm">
                   <UploadCloud className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div>
-                  <p className="text-xs sm:text-sm font-semibold text-slate-100">
+                  <p className="text-xs sm:text-sm font-semibold text-slate-200">
                     Choose files, photos, or drag &amp; drop here
                   </p>
-                  <p className="text-[11px] sm:text-xs text-sky-200/60 mt-1 max-w-md mx-auto leading-relaxed">
-                    Supports Word docs (<span className="text-sky-300 font-mono">.docx</span>), PDFs, Photos, bills, screenshots, or WhatsApp exports.
+                  <p className="text-[11px] sm:text-xs text-slate-400 mt-1 max-w-md mx-auto leading-relaxed">
+                    Supports Word docs (<span className="text-cyan-300 font-mono">.docx</span>), PDFs, Photos, bills, screenshots, or WhatsApp exports.
                   </p>
                   <div className="mt-2.5">
-                    <span className="inline-block text-[11px] font-bold px-3 py-1 rounded-xl bg-sky-500/15 text-sky-300 border border-sky-500/30">
+                    <span className="inline-block text-[11px] font-bold px-3 py-1 rounded-xl bg-cyan-500/10 text-cyan-300 border border-cyan-500/25">
                       Tap or Click to Select
                     </span>
                   </div>
@@ -655,7 +655,7 @@ export const AiIngestCard: React.FC<AiIngestCardProps> = ({
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Provide extra context or instructions across all files, or leave empty..."
-              className="w-full bg-[#060e1d] border border-sky-900/40 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400 transition-colors"
+              className="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-500 transition-colors"
             />
           </div>
 
@@ -664,9 +664,9 @@ export const AiIngestCard: React.FC<AiIngestCardProps> = ({
             <button
               type="button"
               onClick={handlePasteClipboardClick}
-              className="flex items-center gap-1.5 text-xs text-sky-200/70 hover:text-white px-3 py-1.5 rounded-lg bg-[#060e1d] border border-sky-900/40 hover:border-sky-700/60 transition-colors"
+              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-cyan-300 px-3 py-1.5 rounded-lg bg-slate-950/80 border border-slate-800 hover:border-slate-700 transition-colors"
             >
-              <Camera className="w-3.5 h-3.5 text-sky-400" />
+              <Camera className="w-3.5 h-3.5 text-cyan-400" />
               <span>📸 Paste Screenshot from Clipboard (or Ctrl+V)</span>
             </button>
 
@@ -675,7 +675,7 @@ export const AiIngestCard: React.FC<AiIngestCardProps> = ({
               id="btn-analyze-file"
               onClick={handleAnalyze}
               disabled={loading || (selectedFiles.length === 0 && !inputText.trim())}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-400 to-cyan-400 hover:from-sky-300 hover:to-cyan-300 text-slate-950 font-bold text-xs sm:text-sm transition-all shadow-md shadow-cyan-500/25 disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs sm:text-sm transition-all shadow-md shadow-cyan-500/20 disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -712,13 +712,13 @@ export const AiIngestCard: React.FC<AiIngestCardProps> = ({
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Paste conversational messages, WhatsApp chat exports, SMS threads, invoice details, or school slips here..."
-              className="w-full bg-[#060e1d] border border-sky-900/40 rounded-xl p-3.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400 transition-colors font-mono leading-relaxed"
+              className="w-full bg-slate-950/90 border border-slate-800 rounded-xl p-3.5 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-500 transition-colors font-mono leading-relaxed"
             />
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2 text-xs text-sky-200/70">
-              <span className="font-semibold text-slate-200">Scroll Format:</span>
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <span className="font-semibold text-slate-300">Scroll Format:</span>
               {(['message', 'document', 'text'] as const).map((t) => (
                 <button
                   key={t}
@@ -726,8 +726,8 @@ export const AiIngestCard: React.FC<AiIngestCardProps> = ({
                   onClick={() => setInputType(t)}
                   className={`px-2.5 py-0.5 rounded capitalize transition-colors ${
                     inputType === t
-                      ? 'bg-sky-500/20 text-sky-200 border border-sky-500/40 font-semibold'
-                      : 'bg-[#060e1d] text-sky-300/70 hover:text-white border border-sky-950'
+                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-semibold'
+                      : 'bg-slate-800/80 text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   {t === 'message' ? 'WhatsApp / SMS' : t === 'document' ? 'Notice / Doc' : 'Plain Text'}
@@ -740,7 +740,7 @@ export const AiIngestCard: React.FC<AiIngestCardProps> = ({
               id="btn-analyze-content"
               onClick={handleAnalyze}
               disabled={loading || !inputText.trim()}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-400 to-cyan-400 hover:from-sky-300 hover:to-cyan-300 text-slate-950 font-bold text-xs sm:text-sm transition-all shadow-md shadow-cyan-500/25 disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs sm:text-sm transition-all shadow-md shadow-cyan-500/20 disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -794,7 +794,7 @@ export const AiIngestCard: React.FC<AiIngestCardProps> = ({
                 >
                   <Sparkles className="w-3 h-3" />
                   {extractionEngine.startsWith('gemini')
-                    ? `The AI Elf Assistant: ${extractionEngine}`
+                    ? `AI Assistant: ${extractionEngine}`
                     : "Dobby's Pattern Engine"}
                 </span>
               )}
@@ -822,7 +822,7 @@ export const AiIngestCard: React.FC<AiIngestCardProps> = ({
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50"
             >
               <Check className="w-4 h-4" />
-              <span>{confirming ? 'Saving Tasks...' : 'Commit All to Tasks'}</span>
+              <span>{confirming ? 'Saving Tasks...' : 'Commit All to Household Tasks'}</span>
             </button>
           </div>
 
